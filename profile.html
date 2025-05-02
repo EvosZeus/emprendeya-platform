@@ -1,0 +1,677 @@
+<div class="container">
+    <div class="page-inner">
+        <h3 class="fw-bold mb-3">
+            <font style="vertical-align: inherit;">
+                <font style="vertical-align: inherit;">Perfil de usuario</font>
+            </font>
+        </h3>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card card-with-nav">
+
+
+
+                    <div class="card-header">
+                        <div class="card-category">
+                            <font style="vertical-align: inherit;">
+                                <font style="vertical-align: inherit;">
+                                    Validación de formularios
+                                </font>
+                            </font><a href="https://jqueryvalidation.org/">
+                                <font style="vertical-align: inherit;">
+                                    <font style="vertical-align: inherit;">jQuery Validate</font>
+                                </font>
+                            </a>
+                        </div>
+                    </div>
+                    <form id="exampleValidation" novalidate="novalidate">
+                        <div class="card-body">
+                            <div class="form-group form-show-validation row">
+                                <label for="name" class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Nombre </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        placeholder="Introducir nombre de usuario" required="">
+                                </div>
+                            </div>
+                            <div class="form-group form-show-validation row">
+                                <label for="username" class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Nombre de usuario </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="username-addon">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">@</font>
+                                            </font>
+                                        </span>
+                                        <input type="text" class="form-control" placeholder="nombre de usuario"
+                                            aria-label="nombre de usuario" aria-describedby="username-addon"
+                                            id="username" name="username" required="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group form-show-validation row">
+                                <label for="email" class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Correo electrónico
+                                        </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <input type="email" class="form-control" id="email"
+                                        placeholder="Introducir correo electrónico" required="">
+                                    <small id="emailHelp" class="form-text text-muted">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Nunca compartiremos su correo
+                                                electrónico con nadie más.</font>
+                                        </font>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group form-show-validation row">
+                                <label for="password" class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Contraseña </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        placeholder="Introducir contraseña" required="">
+                                </div>
+                            </div>
+                            <div class="form-group form-show-validation row">
+                                <label for="confirmpassword" class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Confirmar Contraseña </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <input type="password" class="form-control" id="confirmpassword"
+                                        name="confirmpassword" placeholder="Introducir contraseña" required="">
+                                </div>
+                            </div>
+                            <div class="separator-solid"></div>
+                            <div class="form-group form-show-validation row">
+                                <label class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Género </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8 d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input type="radio" id="male" name="gender" class="form-check-input">
+                                        <label class="form-check-label" for="male">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">Masculino</font>
+                                            </font>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" id="female" name="gender" class="form-check-input">
+                                        <label class="form-check-label" for="female">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">Femenino</font>
+                                            </font>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group form-show-validation row">
+                                <label for="birth" class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Nacimiento </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="birth" name="birth" required="">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="separator-solid"></div>
+                            <div class="form-group form-show-validation row has-success">
+                                <label class="col-lg-3 col-md-3 col-sm-4 mt-sm-2 text-end">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Subir imagen </font>
+                                    </font><span class="required-label">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">*</font>
+                                        </font>
+                                    </span>
+                                </label>
+                                <div class="col-lg-4 col-md-9 col-sm-8">
+                                    <div class="input-file input-file-image">
+                                        <img class="img-upload-preview img-circle" width="100" height="100"
+                                            alt="avance">
+                                        <input type="file" class="form-control form-control-file success" id="uploadImg"
+                                            name="uploadImg" accept="image/*" required="" aria-invalid="false"><label
+                                            id="uploadImg-error" class="error" for="uploadImg"></label>
+                                        <label for="uploadImg" class="btn btn-primary btn-round btn-lg"><i
+                                                class="fa fa-file-image"></i>
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">Subir una imagen</font>
+                                            </font>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-action">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;"><input class="btn btn-success"
+                                                type="submit" value="Validar"></font>
+                                    </font>
+                                    <button class="btn btn-danger">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Cancelar</font>
+                                        </font>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <!--  TARJETA PERFIL -->
+            <div class="col-md-4">
+                <div class="card card-profile">
+                    <div class="card-header" style="background-image: url('assets/img/blogpost.jpg')">
+                        <div class="profile-picture">
+                            <div class="avatar avatar-xl">
+                                <img src="assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="user-profile text-center">
+                            <div class="name">
+                                <font style="vertical-align: inherit;">
+                                    <font style="vertical-align: inherit;">Alberto Restrepo</font>
+                                </font>
+                            </div>
+                            <div class="job">
+                                <font style="vertical-align: inherit;">
+                                    <font style="vertical-align: inherit;">Emprendedor</font>
+                                </font>
+                            </div>
+                            <div class="desc">
+                                <font style="vertical-align: inherit;">
+                                    <font style="vertical-align: inherit;">Un hombre que odia la soledad.</font>
+                                </font>
+                            </div>
+                            <div class="social-media">
+                                <a class="btn btn-info btn-twitter btn-sm btn-link" href="#">
+                                    <span class="btn-label just-icon"><i class="icon-social-twitter"></i> </span>
+                                </a>
+                                <a class="btn btn-primary btn-sm btn-link" rel="publisher" href="#">
+                                    <span class="btn-label just-icon"><i class="icon-social-facebook"></i> </span>
+                                </a>
+                                <a class="btn btn-danger btn-sm btn-link" rel="publisher" href="#">
+                                    <span class="btn-label just-icon"><i class="icon-social-instagram"></i> </span>
+                                </a>
+                            </div>
+                            <div class="view-profile">
+                                <a href="#" class="btn btn-secondary w-100">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Ver perfil completo</font>
+                                    </font>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row user-stats text-center">
+                            <div class="col">
+                                <div class="number">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">125</font>
+                                    </font>
+                                </div>
+                                <div class="title">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Correo</font>
+                                    </font>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="number">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">25 mil</font>
+                                    </font>
+                                </div>
+                                <div class="title">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Seguidores</font>
+                                    </font>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="number">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">134</font>
+                                    </font>
+                                </div>
+                                <div class="title">
+                                    <font style="vertical-align: inherit;">
+                                        <font style="vertical-align: inherit;">Siguiente</font>
+                                    </font>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <!--  PROYECTOS -->
+        <div class="col-12 order-xxl-3">
+            <div class="card" id="runningProjectTable">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <font style="vertical-align: inherit;">
+                            <font style="vertical-align: inherit;">Proyectos en ejecución</font>
+                        </font>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="scrollbar">
+                        <table
+                            class="table mb-0 table-borderless fs-10 border-200 overflow-hidden table-running-project">
+                            <thead class="bg-body-tertiary">
+                                <tr>
+                                    <th class="text-800 sort" data-sort="projects">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Proyectos</font>
+                                        </font>
+                                    </th>
+                                    <th class="text-800 sort desc" data-sort="time">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Progreso</font>
+                                        </font>
+                                    </th>
+                                    <th class="text-800 sort text-center" data-sort="worked">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Estado</font>
+                                        </font>
+                                    </th>
+                                    <th class="text-800 sort text-center" data-sort="date">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Fecha de vencimiento</font>
+                                        </font>
+                                    </th>
+                                    <th class="text-800 text-center">
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">Miembros</font>
+                                        </font>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="list">
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center position-relative">
+                                            <div class="avatar avatar-xl">
+                                                <div
+                                                    class="avatar-name rounded-circle text-primary bg-primary-subtle fs-9">
+                                                    <span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">do</font>
+                                                        </font>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 ms-3">
+                                                <h6 class="mb-0 fw-semi-bold"><a class="stretched-link text-900"
+                                                        href="../pages/user/profile.html">
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">Diseño del panel de
+                                                                CRM
+                                                            </font>
+                                                        </font>
+                                                    </a></h6>
+                                                <p class="text-500 fs-11 mb-0">
+                                                    <font style="vertical-align: inherit;">
+                                                        <font style="vertical-align: inherit;">Halcón</font>
+                                                    </font>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="progress rounded-3 worked" style="height: 6px;" role="progressbar"
+                                            aria-valuenow="43.72" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-progress-gradient rounded-pill"
+                                                style="width: 50%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center time">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">12h:50m:00s</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td class="align-middle text-center date">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">01/02/22</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-group justify-content-end">
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/1-thumb.png" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/2-thumb.png" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <div class="avatar-name rounded-circle "><span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">+2</font>
+                                                        </font>
+                                                    </span></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center position-relative">
+                                            <div class="avatar avatar-xl">
+                                                <div
+                                                    class="avatar-name rounded-circle text-success bg-success-subtle fs-9">
+                                                    <span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">PAG</font>
+                                                        </font>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 ms-3">
+                                                <h6 class="mb-0 fw-semi-bold"><a class="stretched-link text-900"
+                                                        href="../pages/user/profile.html">
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">Gestión de proyectos
+                                                            </font>
+                                                        </font>
+                                                    </a></h6>
+                                                <p class="text-500 fs-11 mb-0">
+                                                    <font style="vertical-align: inherit;">
+                                                        <font style="vertical-align: inherit;">Vagón temático</font>
+                                                    </font>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="progress rounded-3 worked" style="height: 6px;" role="progressbar"
+                                            aria-valuenow="43.72" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-progress-gradient rounded-pill"
+                                                style="width: 50%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center time">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">12h:30m:30s</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td class="align-middle text-center date">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">08/01/22</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-group justify-content-end">
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/16.jpg" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/25.jpg" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/18.jpg" alt="">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center position-relative">
+                                            <div class="avatar avatar-xl">
+                                                <div
+                                                    class="avatar-name rounded-circle text-warning bg-warning-subtle fs-9">
+                                                    <span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">D</font>
+                                                        </font>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 ms-3">
+                                                <h6 class="mb-0 fw-semi-bold"><a class="stretched-link text-900"
+                                                        href="../pages/user/profile.html">
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">Función de campaña de
+                                                                goteo</font>
+                                                        </font>
+                                                    </a></h6>
+                                                <p class="text-500 fs-11 mb-0">
+                                                    <font style="vertical-align: inherit;">
+                                                        <font style="vertical-align: inherit;">Vagón temático</font>
+                                                    </font>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="progress rounded-3 worked" style="height: 6px;" role="progressbar"
+                                            aria-valuenow="43.72" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-progress-gradient rounded-pill"
+                                                style="width: 80%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center time">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">12h:20m:00s</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td class="align-middle text-center date">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">22/03/22</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-group justify-content-end">
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/7.jpg" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/10.jpg" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <div class="avatar-name rounded-circle "><span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">+2</font>
+                                                        </font>
+                                                    </span></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center position-relative">
+                                            <div class="avatar avatar-xl">
+                                                <div
+                                                    class="avatar-name rounded-circle text-success bg-success-subtle fs-9">
+                                                    <span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">Tú</font>
+                                                        </font>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 ms-3">
+                                                <h6 class="mb-0 fw-semi-bold"><a class="stretched-link text-900"
+                                                        href="../pages/user/profile.html">
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">Rediseño de UI/UX
+                                                            </font>
+                                                        </font>
+                                                    </a></h6>
+                                                <p class="text-500 fs-11 mb-0">
+                                                    <font style="vertical-align: inherit;">
+                                                        <font style="vertical-align: inherit;">Vagón temático</font>
+                                                    </font>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="progress rounded-3 worked" style="height: 6px;" role="progressbar"
+                                            aria-valuenow="43.72" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-progress-gradient rounded-pill"
+                                                style="width: 70%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center time">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">11h:50m:00s</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td class="align-middle text-center date">
+                                        <p class="mb-0 fw-semi-bold">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">04/02/22</font>
+                                            </font>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-group justify-content-end">
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/3-thumb.png" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <img class="rounded-circle" src="../assets/img/team/4-thumb.png" alt="">
+                                            </div>
+                                            <div class="avatar avatar-xl border border-3 border-200 rounded-circle">
+                                                <div class="avatar-name rounded-circle "><span>
+                                                        <font style="vertical-align: inherit;">
+                                                            <font style="vertical-align: inherit;">+5</font>
+                                                        </font>
+                                                    </span></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        $("#birth").datetimepicker({
+            format: "MM/DD/YYYY",
+        });
+
+        $("#state").select2({
+            theme: "bootstrap",
+        });
+
+        /* validate */
+
+        // validation when select change
+        $("#state").change(function () {
+            $(this).valid();
+        });
+
+        // validation when inputfile change
+        $("#uploadImg").on("change", function () {
+            $(this).parent("form").validate();
+        });
+
+        $("#exampleValidation").validate({
+            validClass: "success",
+            rules: {
+                gender: { required: true },
+                confirmpassword: {
+                    equalTo: "#password",
+                },
+                birth: {
+                    date: true,
+                },
+                uploadImg: {
+                    required: true,
+                },
+            },
+            highlight: function (element) {
+                $(element).closest(".form-group").removeClass("has-success").addClass("has-error");
+            },
+            success: function (element) {
+                $(element).closest(".form-group").removeClass("has-error").addClass("has-success");
+            },
+        });
+    </script>

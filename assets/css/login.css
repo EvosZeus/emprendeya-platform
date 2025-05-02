@@ -1,0 +1,133 @@
+/* Estilos para centrar y asegurar fondo */
+html, body {
+    height: 100%;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Public Sans', sans-serif;
+    min-height: 100vh;
+  
+    /* Imagen de fondo global (verifica la ruta!) */
+    background-image: url('../img/carrusel/carousel-2.jpeg'); /* ¡¡VERIFICA ESTA RUTA relativa al CSS!! */
+    background-color: #f0f0f0; /* Fallback */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    /* background-attachment: fixed; /* Descomenta para efecto fijo */
+  }
+  
+  /* Ajustes para el card principal */
+  .card-auth { /* Clase genérica para login/signup */
+    max-width: 900px; /* Ancho máximo */
+    width: 100%;
+    /* Fondo semi-transparente opcional para legibilidad sobre fondo complejo */
+    /* background-color: rgba(255, 255, 255, 0.95); */
+    /* O simplemente blanco sólido */
+    background-color: #fff;
+    /* Asegurar redondeo y recorte */
+    border-radius: var(--bs-card-border-radius, 0.375rem);
+    overflow: hidden; /* Importante para recortar hijos */
+  }
+  
+  /* Columna de la imagen */
+  .img-column {
+    background-color: #343a40; /* Fallback oscuro si la imagen no carga */
+    position: relative; /* Necesario para .bg-holder absoluto si se usa */
+    min-height: 300px; /* Altura mínima cuando se apila en móvil */
+  }
+  
+  /* Contenedor de la imagen de fondo específica de la columna */
+  .bg-holder {
+    background-size: cover;
+    background-position: center;
+    min-height: 100%; /* Cubrir altura de la columna */
+    width: 100%;
+    /* Si quieres que sea absoluto para superponer contenido: */
+    /* position: absolute; */
+    /* top: 0; left: 0; */
+  }
+  
+  /* Columna del formulario */
+  .form-column {
+      background-color: #fff; /* Fondo blanco explícito */
+  }
+  
+  /* Estilos para Labels del formulario de Registro */
+  .form-label-custom {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #6c757d;
+      margin-bottom: 0.3rem;
+  }
+  
+  /* Ajustes Input Group para botón ojo */
+  .input-group .form-control {
+     border-top-right-radius: 0;
+     border-bottom-right-radius: 0;
+     border-right: 0;
+     z-index: 1;
+  }
+  .input-group .btn {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-left-width: 1px;
+      z-index: 3;
+  }
+  .form-control:focus {
+       box-shadow: none;
+       border-color: #86b7fe;
+       z-index: 2;
+  }
+  .form-control:focus + .btn {
+      border-color: #86b7fe;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  /* Separador */
+   .separator-line {
+       display: flex;
+       align-items: center;
+       text-align: center;
+       color: #6c757d;
+       font-size: 0.85rem;
+       margin: 1.5rem 0;
+   }
+   .separator-line::before,
+   .separator-line::after {
+       content: '';
+       flex: 1;
+       border-bottom: 1px solid #dee2e6;
+   }
+   .separator-line:not(:empty)::before { margin-right: .5em; }
+   .separator-line:not(:empty)::after { margin-left: .5em; }
+  
+    /* Ajustes menores */
+   .link-primary { text-decoration: none; }
+   .form-check-label a { font-weight: 500; }
+  
+   /* Footer simple */
+   .auth-footer a {
+      text-decoration: none;
+   }
+   .auth-footer a:hover {
+      text-decoration: underline;
+   }
+  
+   /* Responsividad específica si Bootstrap no es suficiente */
+   @media (max-width: 991.98px) {
+      .card-auth .row > [class*="col-"] {
+          /* Asegurar que no haya padding extra no deseado al apilar */
+          padding-left: 0;
+          padding-right: 0;
+      }
+      .img-column {
+          /* Ajustar altura mínima para móvil si es necesario */
+          min-height: 250px;
+      }
+      .form-column .auth-form-box {
+          padding: 1.5rem !important; /* Reducir padding en móvil */
+      }
+   }
