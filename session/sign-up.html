@@ -3,55 +3,32 @@
 
 <head>
   <meta charset="UTF-8" />
+  <!-- Mejor usar UTF-8 directamente -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Inscribirse - EmprendeYA</title>
+  <title>Iniciar Sesión - EmprendeYA</title>
   <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+  <!-- Asegúrate que la ruta al favicon sea correcta desde la ubicación de sign-in.html -->
   <link rel="icon" href="../assets/img/emprendeya/favicon.ico" type="image/x-icon" />
 
-  <!-- Bootstrap Icons CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-
-  <!-- Google Fonts -->
+  <!-- Alternativa más fiable: Font Awesome CDN (v5 para compatibilidad fa/fas/fab) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Google Fonts (si WebFont no carga Public Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <!-- === CSS Files === -->
+  <!-- CSS Files -->
+  <!-- Asegúrate que estas rutas sean correctas -->
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
-  <!-- Tu CSS específico si aún lo necesitas -->
-  <!-- Enlace al CSS Global -->
-  <link rel="stylesheet" href="../assets/css/login.css
-    <!DOCTYPE html>
-    <html lang=" es">
 
-  <head>
-    <meta charset="UTF-8" />
-    <!-- Mejor usar UTF-8 directamente -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Iniciar Sesión - EmprendeYA</title>
-    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
-    <!-- Asegúrate que la ruta al favicon sea correcta desde la ubicación de sign-in.html -->
-    <link rel="icon" href="../assets/img/emprendeya/favicon.ico" type="image/x-icon" />
-
-    <!-- Alternativa más fiable: Font Awesome CDN (v5 para compatibilidad fa/fas/fab) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-      integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Google Fonts (si WebFont no carga Public Sans) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet" />
-
-    <!-- CSS Files -->
-    <!-- Asegúrate que estas rutas sean correctas -->
-    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
-
-    <link rel="stylesheet" href="../assets/css/emprendeya-2.css" />
-    <!-- Tu CSS personalizado principal -->
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+  <link rel="stylesheet" href="../assets/css/emprendeya-2.css" />
+  <!-- Tu CSS personalizado principal -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 
 <body>
   <!-- Aplicar flexbox aquí para centrar -->
@@ -83,45 +60,42 @@
                 </div>
 
                 <!-- Login submission form-->
-                <form class="mb-5">
+                <form id="registerForm" class="mb-5" onsubmit="registerUser(event)">
                   <div class="mb-4">
                     <label for="nombre" class="form-label fw-semibold small">Nombre</label>
                     <div class="input-group">
                       <span class="input-group-text border-end-0">
                         <i class="fas fa-user text-secondary fa-fw"></i>
-                        <!-- fas y fa-fw para ancho fijo -->
                       </span>
-                      <!-- Quitar border-start-0 si no es necesario -->
-                      <input type="text" class="form-control" id="nombre" placeholder="Nombre" required />
+                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required />
                     </div>
+                    <div class="text-danger small" id="nombreError"></div>
                   </div>
+
                   <div class="mb-4">
-                    <label class="form-label fw-semibold small" for="email">Correo electrónico</label>
+                    <label for="email" class="form-label fw-semibold small">Correo electrónico</label>
                     <div class="input-group">
                       <span class="input-group-text border-end-0">
                         <i class="fas fa-at text-secondary fa-fw"></i>
-                        <!-- fas y fa-fw para ancho fijo -->
                       </span>
-                      <!-- Quitar border-start-0 si no es necesario -->
-                      <input class="form-control" id="email" type="email" placeholder="nombre@ejemplo.com" required />
+                      <input class="form-control" id="email" name="email" type="email" placeholder="nombre@ejemplo.com"
+                        required />
                     </div>
+                    <div class="text-danger small" id="emailError"></div>
                   </div>
+
                   <div class="mb-4">
-                    <!-- Reducido margen inferior -->
-                    <label class="form-label fw-semibold small" for="password">Contraseña</label>
+                    <label for="password" class="form-label fw-semibold small">Contraseña</label>
                     <div class="input-group">
                       <span class="input-group-text border-end-0">
                         <i class="fas fa-lock text-secondary fa-fw"></i>
-                        <!-- fas y fa-fw -->
                       </span>
-                      <!-- Quitar border-start-0 y border-end-0 -->
-                      <input class="form-control" id="password" type="password" placeholder="Contraseña" required />
-                      <button class="btn btn-outline-secondary border-start-0" type="button" id="togglePassword">
-                        <!-- fas y fa-fw -->
-                        <i class="fas fa-eye fa-fw"></i>
-                      </button>
+                      <input class="form-control" id="password" name="password" type="password" placeholder="Contraseña"
+                        required />
                     </div>
+                    <div class="text-danger small" id="passwordError"></div>
                   </div>
+
                   <div class="mb-4">
                     <label for="tipo_usuario" class="form-label fw-semibold small">Tipo de Perfil</label>
                     <div class="input-group">
@@ -134,28 +108,19 @@
                         <option value="inversionista">Inversionista</option>
                       </select>
                     </div>
+                    <div class="text-danger small" id="tipoUsuarioError"></div>
                   </div>
-
 
                   <div class="form-check mb-4">
                     <input class="form-check-input" type="checkbox" value="" id="terms" required />
                     <label class="form-check-label small text-muted" for="terms">
-                      Acepto los
-                      <a href="#" class="link-primary">términos</a> y
-                      <a href="#" class="link-primary">política de privacidad</a>
+                      Acepto los <a href="#" class="link-primary">términos</a> y <a href="#"
+                        class="link-primary">política de privacidad</a>
                     </label>
                   </div>
-                  <div class="mb-4">
-                    <button type="submit" class="btn btn-primary">
-                      Inscribirse
-                    </button>
-                  </div>
 
-                  <div class="text-center small">
-                    <p class="mb-0 text-muted">
-                      ¿Ya tienes una cuenta?
-                      <a href="sign-in.html" class="link-primary">Iniciar sesión en una cuenta existente</a>
-                    </p>
+                  <div class="mb-4">
+                    <button type="submit" class="btn btn-primary">Inscribirse</button>
                   </div>
                 </form>
                 <!-- Auth card message-->
@@ -216,6 +181,37 @@
       });
     }
   </script>
+
+
+  <!-- Script para enviar datos a la base de datos -->
+  <script>
+    async function registerUser(event) {
+      event.preventDefault();
+
+      const formData = new FormData(document.getElementById("registerForm"));
+
+      try {
+        const response = await fetch("../backend-php/register.php", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.text();
+        alert(result);
+      } catch (error) {
+        alert("Error al registrar el usuario. Inténtalo de nuevo.");
+        console.error(error);
+      }
+    }
+  </script>
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
 </body>
 
 </html>

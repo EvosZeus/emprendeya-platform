@@ -1,2 +1,0 @@
-SUPABASE_URL = 'https://qlotpbxhkjhmkjcomjzm.supabase.co'
-SUPABASE_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsb3RwYnhoa2pobWtqY29tanptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1NzgwMTksImV4cCI6MjA2MjE1NDAxOX0.hvWK0U3_zmejLCr2OLhX0hrLVwbv0xaIgX6Vbri8gIQ'

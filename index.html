@@ -11,6 +11,7 @@
   <script src="assets/js/plugin/webfont/webfont.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
  
   <!-- FullCalendar CSS -->
@@ -49,7 +50,7 @@
       <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-          <a href="index.html" class="logo">
+          <a href="index.php" class="logo">
             <img src="assets/img/emprendeya/logo_light.png" alt="navbar brand" class="navbar-brand" height="50" />
           </a>
           <div class="nav-toggle">
@@ -353,7 +354,7 @@
         <div class="main-header-logo">
           <!-- Logo Header -->
           <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo">
+            <a href="index.php" class="logo">
               <img src="assets/img/emprendeya/logo_light.png" alt="navbar brand" class="navbar-brand" height="20" />
             </a>
             <div class="nav-toggle">
@@ -619,7 +620,7 @@
               <div class="col-6 col-md-4 p-0 footer-about">
                 <div class="d-flex flex-column align-items-center justify-content-center text-center h-100 p-4"
                   style="background-color: #1a2035">
-                  <a href="index.html" class="navbar-brand d-flex align-items-center">
+                  <a href="index.php" class="navbar-brand d-flex align-items-center">
                     <img src="assets/img/emprendeya/logo_light.png" alt="navbar brand" class="navbar-brand me-2"
                       height="50" />
                   </a>
@@ -838,6 +839,9 @@
   <script src="assets/js/emprendeya.js"></script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
+
+  <script src="backend-supabase/conection.js"></script>
+
   <!-- FullCalendar JS -->
 
   <script>
@@ -873,7 +877,7 @@
 
   <script>
     function cargarContenido(ruta) {
-      fetch(`${ruta}.html`)
+      fetch(`${ruta}.php`)
         .then((res) => {
           if (!res.ok) throw new Error("No encontrado");
           return res.text();
@@ -901,7 +905,7 @@
         .catch((err) => {
           document.getElementById("render-body").innerHTML = `
       <div class="alert alert-warning mt-4">
-        <strong>Oops:</strong> No se pudo cargar <code>${ruta}.html</code>
+        <strong>Oops:</strong> No se pudo cargar <code>${ruta}.php</code>
       </div>`;
         });
     }
@@ -955,7 +959,7 @@
         modal.show();
       } else {
         // Si el modal no existe en el DOM, cargarlo desde otro archivo e insertarlo
-        fetch('ruta/a/tu/modal-calendario.html')
+        fetch('ruta/a/tu/modal-calendario.php')
           .then(response => response.text())
           .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
