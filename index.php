@@ -1,3 +1,113 @@
+<?php
+// ---------------------------------------------------------------------
+// BLOQUE DE INICIO, VERIFICACIÓN DE SESIÓN Y RECUPERACIÓN COMPLETA DE DATOS DEL USUARIO
+// (Basado en la tabla 'usuarios' y lo guardado en $_SESSION durante el login)
+// ---------------------------------------------------------------------
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: landing.html'); // O tu página de login
+    exit;
+}
+
+// --- Recuperación de todas las variables de sesión relevantes ---
+
+// ID del usuario (obligatorio para saber quién es)
+$sesion_user_id = $_SESSION['user_id'];
+
+// Datos de la tabla 'usuarios' que guardaste en la sesión:
+$sesion_nombre_completo = isset($_SESSION['user_name']) 
+                        ? htmlspecialchars($_SESSION['user_name']) 
+                        : 'N/A'; // Nombre completo
+
+$sesion_email_usuario = isset($_SESSION['user_email']) 
+                      ? htmlspecialchars($_SESSION['user_email']) 
+                      : 'N/A'; // Email
+
+$sesion_rol_usuario = isset($_SESSION['user_role']) 
+                    ? htmlspecialchars($_SESSION['user_role']) 
+                    : 'N/A'; // Rol (Emprendedor, Inversor)
+
+$sesion_acepta_terminos = isset($_SESSION['user_terms_accepted']) 
+                        ? (bool)$_SESSION['user_terms_accepted'] // Convertir a booleano
+                        : false; // Acepta términos
+
+$sesion_foto_perfil_url = isset($_SESSION['user_photo_url']) && !empty($_SESSION['user_photo_url'])
+                         ? htmlspecialchars($_SESSION['user_photo_url']) 
+                         : 'assets/img/profile-signin.jpg'; // Foto de perfil URL (con default)
+
+$sesion_genero_usuario = isset($_SESSION['user_gender']) 
+                       ? htmlspecialchars($_SESSION['user_gender']) 
+                       : 'N/A'; // Género
+
+$sesion_telefono_usuario = isset($_SESSION['user_phone']) && !empty($_SESSION['user_phone'])
+                          ? htmlspecialchars($_SESSION['user_phone']) 
+                          : 'N/A'; // Teléfono
+
+$sesion_fecha_nacimiento = isset($_SESSION['user_birth_date']) && !empty($_SESSION['user_birth_date'])
+                           ? htmlspecialchars($_SESSION['user_birth_date']) // Formato YYYY-MM-DD de la DB
+                           : 'N/A'; // Fecha de nacimiento
+
+$sesion_municipio_usuario = isset($_SESSION['user_municipality']) && !empty($_SESSION['user_municipality'])
+                           ? htmlspecialchars($_SESSION['user_municipality']) 
+                           : 'N/A'; // Municipio
+
+$sesion_fecha_registro = isset($_SESSION['user_registration_date']) && !empty($_SESSION['user_registration_date'])
+                         ? htmlspecialchars($_SESSION['user_registration_date']) // Formato de timestamp
+                         : 'N/A'; // Fecha de registro
+
+$sesion_cuenta_verificada = isset($_SESSION['user_account_verified']) 
+                          ? (bool)$_SESSION['user_account_verified'] // Convertir a booleano
+                          : false; // Cuenta verificada
+
+
+// El bloque opcional de "Refrescar datos de sesión desde la base de datos" sigue siendo válido
+// si quieres implementarlo, pero ahora tendría que actualizar todas estas variables.
+// Por simplicidad, lo mantengo comentado.
+/*
+if (isset($_SESSION['last_db_refresh']) && (time() - $_SESSION['last_db_refresh'] > 300)) {
+    // ... lógica para refrescar TODAS las variables de sesión desde la BD ...
+    // require_once '../config/database.php';
+    // $stmt = pg_prepare($conn, "get_all_user_details", "SELECT * FROM usuarios WHERE id = $1");
+    // $result_refresh = pg_execute($conn, "get_all_user_details", array($sesion_user_id));
+    // if ($user_data_db = pg_fetch_assoc($result_refresh)) {
+    //     // Actualizar todas las $_SESSION y luego las variables $sesion_...
+    //     $_SESSION['user_name'] = $user_data_db['nombre_completo']; // y así para todas
+    //     // ... luego reasignar las $sesion_...
+    //     $sesion_nombre_completo = htmlspecialchars($_SESSION['user_name']); // etc.
+    // }
+    // $_SESSION['last_db_refresh'] = time();
+}
+if (!isset($_SESSION['last_db_refresh'])) {
+    $_SESSION['last_db_refresh'] = time();
+}
+*/
+
+// ---------------------------------------------------------------------
+// FIN DEL BLOQUE DE SESIÓN - EL RESTO DE TU PÁGINA PHP/HTML VA DESPUÉS
+// ---------------------------------------------------------------------
+
+// LAS LÍNEAS QUE CAUSABAN EL PARSE ERROR ANTERIORMENTE DEBEN SER ELIMINADAS O COMENTADAS CORRECTAMENTE.
+// ¡ESTAS LÍNEAS DE ABAJO SON SOLO UN RECORDATORIO PARA TI, NO CÓDIGO EJECUTABLE!
+/*
+// Ahora puedes usar las variables:
+// $sesion_user_id
+// $sesion_nombre_completo
+// $sesion_email_usuario
+// $sesion_rol_usuario
+// $sesion_foto_perfil_url
+// $sesion_acepta_terminos
+// $sesion_genero_usuario
+// $sesion_telefono_usuario
+// $sesion_fecha_nacimiento
+// $sesion_municipio_usuario
+// $sesion_fecha_registro
+// $sesion_cuenta_verificada
+*/
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -13,7 +123,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
- 
+
   <!-- FullCalendar CSS -->
 
   <script>
@@ -71,22 +181,25 @@
         <div class="sidebar-content">
           <div class="profile-section">
             <div class="user-profile d-flex flex-column align-items-center text-center py-4">
-              <div class="avatar avatar-xl mb-3">
-                <img src="assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle" />
+              <div class="avatar avatar-xxl mb-3 <?php echo isset($sesion_user_id) ? '' : 'd-none'; ?>">
+                <img src="<?php echo $sesion_foto_perfil_url; ?>"
+                  alt="Foto de perfil de <?php echo $sesion_nombre_completo; ?>" class="avatar-img rounded-circle" />
               </div>
-              <div class="avatar avatar-minimize avatar-md mb-3 d-none">
-                <img src="assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle" />
-              </div>
+
               <span class="user-name fw-bold mb-1">
                 <font style="vertical-align: inherit">
-                  <font style="vertical-align: inherit">Alberto Restrepo</font>
+                  <font style="vertical-align: inherit">
+                    <?php echo $sesion_nombre_completo; ?>
+                  </font>
                 </font>
-              </span>
-              <span class="user-level op-7">
-                <font style="vertical-align: inherit">
-                  <font style="vertical-align: inherit">Emprendedor</font>
-                </font>
-              </span>
+                </span>
+                <span class="user-level op-7">
+                  <font style="vertical-align: inherit">
+                    <font style="vertical-align: inherit">
+                      <?php echo $sesion_rol_usuario; ?>
+                    </font>
+                  </font>
+                </span>
             </div>
             <div class="row menubars border-top border-bottom text-center no-gutters px-4">
               <div class="col-4 border-right">
@@ -107,7 +220,7 @@
           </div>
 
           <ul class="nav nav-secondary">
-           
+
             <li class="nav-item">
               <a href="" class="menu-link" data-page="home">
                 <i class="fas fa-home"></i>
@@ -559,11 +672,11 @@
               <li class="nav-item topbar-user dropdown hidden-caret">
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                   <div class="avatar-sm">
-                    <img src="assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle" />
+                    <img src="<?php echo $sesion_foto_perfil_url; ?>" alt="..." class="avatar-img rounded-circle" />
                   </div>
                   <span class="profile-username">
                     <span class="op-7">Hola,</span>
-                    <span class="fw-bold">Alberto</span>
+                    <span class="fw-bold"><?php echo $sesion_nombre_completo; ?></span>
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -571,12 +684,13 @@
                     <li>
                       <div class="user-box">
                         <div class="avatar-lg">
-                          <img src="assets/img/profile.jpg" alt="image profile" class="avatar-img rounded" />
+                          <img src="<?php echo $sesion_foto_perfil_url; ?>" alt="image profile" class="avatar-img rounded" />
                         </div>
                         <div class="u-text">
-                          <h4>Alberto</h4>
-                          <p class="text-muted">hola@ejemplo.com</p>
-                          <a href="" class="btn btn-xs btn-secondary btn-sm menu-link" href="#" data-page="profile">Ver Perfil</a>
+                          <h4><?php echo $sesion_nombre_completo; ?></h4>
+                          <p class="text-muted"><?php echo $sesion_email_usuario; ?></p>
+                          <a href="" class="btn btn-xs btn-secondary btn-sm menu-link" href="#" data-page="profile">Ver
+                            Perfil</a>
                         </div>
                       </div>
                     </li>
@@ -584,7 +698,7 @@
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="#">Configuración de Cuenta</a>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Cerrar Sesión</a>
+                      <a class="dropdown-item" href="backend-php/logout.php">Cerrar Sesión</a>
                     </li>
                   </div>
                 </ul>

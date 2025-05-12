@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (move_uploaded_file($file_tmp_path, $destination_path)) {
             // Guardar la ruta relativa o URL completa según tu necesidad
             // Si 'uploads' está en la raíz pública, la URL sería algo como:
-            $foto_perfil_url = '../assets/uploads/profile_pictures/' . $new_file_name;
+            $foto_perfil_url = 'assets/uploads/profile_pictures/' . $new_file_name;
         } else {
             // Error al mover el archivo, puedes loggearlo pero no necesariamente detener el registro
             // $response['message'] = "Error al guardar la foto de perfil.";

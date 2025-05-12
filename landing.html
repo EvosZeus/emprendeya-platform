@@ -565,35 +565,44 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header" style="background-color: #1a2035; color: white;">
-                        <!-- Estilo EmprendeYa -->
                         <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión en Emprende Ya</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
-                        <form>
+                        <!-- Añadido id al form y quitado action/method si se usa JS -->
+                        <form id="loginForm">
                             <div class="mb-3">
                                 <label class="form-label" for="login-email">Correo Electrónico</label>
-                                <input class="form-control" id="login-email" type="email" placeholder="tu@correo.com" />
+                                <!-- Añadido name="email" -->
+                                <input class="form-control" id="login-email" type="email" name="email"
+                                    placeholder="tu@correo.com" required />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="login-password">Contraseña</label>
-                                <input class="form-control" id="login-password" type="password"
-                                    placeholder="Contraseña" />
+                                <!-- Añadido name="password" -->
+                                <input class="form-control" id="login-password" type="password" name="password"
+                                    placeholder="Contraseña" required />
                             </div>
                             <div class="row flex-between-center">
                                 <div class="col-auto">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="modal-checkbox-remember" />
+                                        <!-- Añadido name="remember" -->
+                                        <input class="form-check-input" type="checkbox" id="modal-checkbox-remember"
+                                            name="remember" />
                                         <label class="form-check-label" for="modal-checkbox-remember">Recuérdame</label>
                                     </div>
                                 </div>
                                 <div class="col-auto"><a class="fs--1" href="#!">¿Olvidaste tu contraseña?</a></div>
                             </div>
                             <div class="mb-3 mt-3">
-                                <button class="btn btn-primary d-block w-100" type="submit" name="submit">Iniciar
-                                    Sesión</button>
+                                <!-- Cambiado type="submit" a type="button" si se maneja con JS, añadido id al botón -->
+                                <button class="btn btn-primary d-block w-100" type="submit"
+                                    id="loginSubmitButton">Iniciar Sesión</button>
+                                <!-- Si no usas JS para el envío, puedes dejar type="submit" y añadir action/method al form -->
                             </div>
+                            <!-- Para mensajes de error/éxito -->
+                            <div id="loginMessage" class="mt-3"></div>
                         </form>
                         <div class="position-relative mt-4">
                             <hr class="text-200" />
@@ -756,14 +765,20 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="mb-3"><label class="form-label"
-                                                    for="wizardGender">Género</label><select class="form-select"
-                                                    name="gender" id="wizardGender">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="wizardGender">Género</label>
+                                                <select class="form-select" name="gender" id="wizardGender">
                                                     <option value="">Selecciona tu género...</option>
-                                                    <option value="Male">Masculino</option>
-                                                    <option value="Female">Femenino</option>
-                                                    <option value="Other">Otro</option>
-                                                </select></div>
+                                                    <option value="Masculino">Masculino</option>
+                                                    <option value="Femenino">Femenino</option> {/* Cambiado de "Female"
+                                                    */}
+                                                    <option value="Otro">Otro</option> {/* Cambiado de "Other" */}
+                                                    {/* Podrías añadir "Prefiero no decirlo" si quieres dar esa opción
+                                                    explícitamente */}
+                                                    {/* <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                                                    */}
+                                                </select>
+                                            </div>
                                             <div class="mb-3"><label class="form-label"
                                                     for="wizardPhone">Teléfono</label><input class="form-control"
                                                     type="text" name="phone" placeholder="Ej: +57 312 1234567"
@@ -1138,6 +1153,59 @@
     <script src="assets/js/emprendeya-2.js"></script>
     <!-- <script src="assets/js/setting-emprendeya.js"></script> --> <!-- No necesario para landing -->
 
+    <!--login -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const loginMessageDiv = document.getElementById('loginMessage');
+            const loginSubmitButton = document.getElementById('loginSubmitButton'); // Botón de submit
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function (event) {
+                    event.preventDefault(); // Prevenir el envío tradicional del formulario
+
+                    if (loginSubmitButton) loginSubmitButton.disabled = true; // Deshabilitar botón
+                    loginMessageDiv.innerHTML = '<div class="text-info">Procesando...</div>'; // Mensaje de carga
+
+                    const formData = new FormData(loginForm);
+
+                    try {
+                        const response = await fetch('backend-php/login.php', { // CAMBIA ESTA RUTA
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            loginMessageDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+                            // Redirigir después de un breve momento o si el backend lo indica
+                            // Por ejemplo, si el backend envía result.redirectUrl:
+                            // if (result.redirectUrl) {
+                            //    window.location.href = result.redirectUrl;
+                            // } else {
+                            //    window.location.href = 'dashboard.php'; // O tu página de inicio post-login
+                            // }
+                            // O simplemente recargar la página para que el backend maneje el estado de sesión
+                            setTimeout(() => {
+                                window.location.href = 'index.php'; // O redirige a una página específica
+                            }, 1500); // Espera 1.5 segundos
+
+                        } else {
+                            loginMessageDiv.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+                            if (loginSubmitButton) loginSubmitButton.disabled = false; // Rehabilitar botón
+                        }
+
+                    } catch (error) {
+                        console.error('Error en la petición de login:', error);
+                        loginMessageDiv.innerHTML = '<div class="alert alert-danger">Error de conexión o respuesta inesperada.</div>';
+                        if (loginSubmitButton) loginSubmitButton.disabled = false; // Rehabilitar botón
+                    }
+                });
+            }
+        });
+    </script>
+    <!--register -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Inicializar tooltips
@@ -1216,6 +1284,7 @@
 
         });
     </script>
+
     <script>document.addEventListener('DOMContentLoaded', function () {
             const tabLinks = document.querySelectorAll('.nav-wizard .nav-link');
             const navWizard = document.querySelector('.nav-wizard');

@@ -99,20 +99,6 @@ CREATE INDEX idx_usuarios_rol ON usuarios(rol);
 
 
 
-
--- TABLA USUARIOS
-CREATE EXTENSION IF NOT EXISTS pgcrypto; -- Necesaria para gen_random_uuid()
-CREATE EXTENSION IF NOT EXISTS citext;   -- Para el tipo case-insensitive
-
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  email CITEXT UNIQUE NOT NULL, -- Case-insensitive email
-  hashed_password TEXT NOT NULL, -- Cambié a hashed_password para mayor claridad
-  tipo_usuario TEXT CHECK (tipo_usuario IN ('emprendedor', 'inversionista')) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
 -- TABLA PROYECTOS
 CREATE TABLE proyectos (
     id SERIAL PRIMARY KEY,
