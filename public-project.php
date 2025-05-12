@@ -5,7 +5,9 @@
             <div class="container ">
                 <div class="page-inner">
                     <div class="page-header" style="overflow: auto;">
-                        <span class="badge badge-success" style="float: left;">Publicar Proyecto <font
+                    <h4 class="fw-bold text-primary mb-3"><i
+                                            class="fas fa-fingerprint me-2"></i>Publicar Proyecto</h4>
+                        <span class="badge badge-success" style="float: left;">Todos los proyectos son potenciales! <font
                                 style="vertical-align: inherit;">+</font></span>
 
                     </div>

@@ -29,36 +29,7 @@
                                                 <h5 class="card-title fw-bold">Proyecto Innovador Alpha</h5>
                                                 <p class="card-text text-muted">Tecnología | Etapa MVP</p>
                                                 <p class="card-text">Breve descripción del proyecto destacando su potencial.</p>
-                                                <a href="#" class="btn btn-secondary btn-sm-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal">Ver Detalles</a>
-
-                                                <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalTitle" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title fw-bold" id="detalleModalTitle">Detalles del Proyecto</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row justify-content-center">
-                                                                    <div class="col-md-8 col-lg-6 text-center">
-                                                                        <img src="assets/img/blog-1.jpeg" class="img-fluid mb-3" alt="Project Image">
-                                                                        <h5 class="fw-bold fs-3">Proyecto Innovador Alpha</h5>
-                                                                        <p class="text-muted fs-5">Tecnología | Etapa MVP</p>
-                                                                        <p class="fs-5">Breve descripción del proyecto destacando su potencial y necesidad de inversión.</p>
-                                                                        <div class="progress mb-2" style="height: 15px;">
-                                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 60%;" aria-valuenow="60"
-                                                                                aria-valuemin="0" aria-valuemax="100">60%</div>
-                                                                        </div>
-                                                                        <p><small class="text-muted fs-5">Meta: $50,000</small></p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div> 
+                                                <a href="#" class="btn btn-secondary btn-sm menu-link" data-page="project-detail">Ver Detalles</a> 
                                                 <a href="#" class="btn btn-success btn-sm float-end" data-bs-toggle="modal" data-bs-target="#chatModal">Contactar</a>
                                             </div>
                                         </div>
@@ -72,36 +43,7 @@
                                                 <h5 class="card-title fw-bold">Sistema de Monitoreo de Salud</h5>
                                                 <p class="card-text text-muted">Salud | Desarrollo Inicial</p>
                                                 <p class="card-text">Proyecto que busca mejorar la calidad de vida mediante monitoreo.</p>
-                                                <a href="#" class="btn btn-secondary btn-sm-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal">Ver Detalles</a>
-
-                                                <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalTitle" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title fw-bold" id="detalleModalTitle">Detalles del Proyecto</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row justify-content-center">
-                                                                    <div class="col-md-8 col-lg-6 text-center">
-                                                                        <img src="assets/img/blog-1.jpeg" class="img-fluid mb-3" alt="Project Image">
-                                                                        <h5 class="fw-bold fs-3">Proyecto Innovador Alpha</h5>
-                                                                        <p class="text-muted fs-5">Tecnología | Etapa MVP</p>
-                                                                        <p class="fs-5">Breve descripción del proyecto destacando su potencial y necesidad de inversión.</p>
-                                                                        <div class="progress mb-2" style="height: 15px;">
-                                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 60%;" aria-valuenow="60"
-                                                                                aria-valuemin="0" aria-valuemax="100">60%</div>
-                                                                        </div>
-                                                                        <p><small class="text-muted fs-5">Meta: $50,000</small></p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div> 
+                                                <a href="#" class="btn btn-secondary btn-sm menu-link" data-page="project-detail">Ver Detalles</a> 
                                                 <a href="#" class="btn btn-success btn-sm float-end" data-bs-toggle="modal" data-bs-target="#chatModal">Contactar</a>
                                             </div>
                                         </div>
@@ -115,36 +57,7 @@
                                                 <h5 class="card-title fw-bold">Plataforma de Aprendizaje Online</h5>
                                                 <p class="card-text text-muted">Educación | Beta Testing</p>
                                                 <p class="card-text">Una plataforma diseñada para mejorar el acceso a la educación.</p>
-                                                <a href="#" class="btn btn-secondary btn-sm-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalleModal">Ver Detalles</a>
-
-                            <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalTitle" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title fw-bold" id="detalleModalTitle">Detalles del Proyecto</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row justify-content-center">
-                                                <div class="col-md-8 col-lg-6 text-center">
-                                                    <img src="assets/img/blog-1.jpeg" class="img-fluid mb-3" alt="Project Image">
-                                                    <h5 class="fw-bold fs-3">Proyecto Innovador Alpha</h5>
-                                                    <p class="text-muted fs-5">Tecnología | Etapa MVP</p>
-                                                    <p class="fs-5">Breve descripción del proyecto destacando su potencial y necesidad de inversión.</p>
-                                                    <div class="progress mb-2" style="height: 15px;">
-                                                        <div class="progress-bar bg-success" role="progressbar" style="width: 60%;" aria-valuenow="60"
-                                                            aria-valuemin="0" aria-valuemax="100">60%</div>
-                                                    </div>
-                                                    <p><small class="text-muted fs-5">Meta: $50,000</small></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> 
+                                                <a href="#" class="btn btn-secondary btn-sm menu-link" data-page="project-detail">Ver Detalles</a> 
                                                 <a href="#" class="btn btn-success btn-sm float-end" data-bs-toggle="modal" data-bs-target="#chatModal">Contactar</a>
                                             </div>
                                         </div>

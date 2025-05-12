@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="es-ES" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Emprende Ya | Tu Plataforma para el Éxito Empresarial</title>
+
+    <!-- Favicon de EmprendeYa -->
+    <link rel="icon" href="assets/img/emprendeya/favicon.ico" type="image/x-icon" />
+
+    <!-- Fonts and icons de EmprendeYa -->
+    <script src="assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { families: ["Public Sans:300,400,500,600,700", "Poppins:300,400,500,600,700,800,900"] }, // Poppins para el wizard
+            custom: {
+                families: [
+                    "Font Awesome 5 Solid",
+                    "Font Awesome 5 Regular",
+                    "Font Awesome 5 Brands",
+                    "simple-line-icons",
+                ],
+                urls: ["assets/css/fonts.min.css"],
+            },
+            active: function () {
+                sessionStorage.fonts = true;
+            },
+        });
+    </script>
+
+    <!-- CSS Files de EmprendeYa (Prioridad) -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.css" /> <!-- Asumo plugins.min.css -->
+    <link rel="stylesheet" href="assets/css/emprendeya-2.css" />
+
+    <!-- CSS de Falcon específicos para componentes de la landing y el wizard -->
+    <link href="vendors/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <link href="vendors/flatpickr/flatpickr.min.css" rel="stylesheet"> <!-- Para el datepicker del wizard -->
+    <link href="vendors/dropzone/dropzone.css" rel="stylesheet"> <!-- Para el dropzone del wizard -->
+    <link href="assets/css/theme.min.css" rel="stylesheet" id="style-default-falcon">
+
+
+
+    <style>
+        /* Ajustes para el Navbar de la Landing para que se parezca más al de EmprendeYa */
+        .navbar-landing-emprendeya {
+            background-color: #1a2035 !important;
+            /* Color oscuro del sidebar/header de EmprendeYa */
+            /* padding-top: 0.5rem;
+      padding-bottom: 0.5rem; */
+        }
+
+        /* Añade este estilo para crear espacio entre el navbar y la sección hero */
+        #banner {
+            padding-top: 80px;
+            /* Ajusta este valor según la altura de tu navbar */
+            margin-top: 0;
+        }
+
+        /* Alternativa: si tu navbar tiene posición fixed o absolute */
+        body {
+            padding-top: 60px;
+            /* Ajusta este valor según la altura de tu navbar si tu navbar es fixed */
+        }
+
+        .navbar-landing-emprendeya .navbar-brand img {
+            height: 40px;
+            /* Ajusta según tu logo */
+        }
+
+        .navbar-landing-emprendeya .nav-link {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        .navbar-landing-emprendeya .nav-link:hover,
+        .navbar-landing-emprendeya .nav-link.active {
+            color: #ffffff !important;
+        }
+
+        .navbar-landing-emprendeya .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-landing-emprendeya .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Estilo para el modal del wizard para que ocupe más espacio si es necesario */
+        #registerWizardModal .modal-dialog {
+            max-width: 700px;
+            /* O el ancho que consideres adecuado para el wizard */
+        }
+
+        /* Para asegurar que los iconos del wizard se vean bien con el tema EmprendeYa */
+        #registerWizardModal .nav-wizard .nav-item-circle {
+            background-color: #007bff;
+            /* Color primario de Bootstrap/Kaiadmin */
+            color: white;
+        }
+
+        #registerWizardModal .nav-wizard .nav-link.active .nav-item-circle {
+            background-color: #0056b3;
+            /* Un tono más oscuro del primario */
+        }
+
+        #registerWizardModal .nav-wizard .nav-link:not(.active):hover .nav-item-circle {
+            background-color: #0069d9;
+        }
+
+        /* Para que la imagen cubra completamente el lado derecho */
+        .img-landing-banner {
+            display: block;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .img-landing-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Esto es clave para que la imagen cubra todo el espacio */
+            border-radius: inherit;
+            /* Para que la imagen herede el border-radius de su contenedor */
+        }
+
+        .col-xl-6.align-self-end {
+            height: 100%;
+            /* Asegúrate de que el contenedor de la columna tenga altura completa */
+        }
+
+        /* Estilos para el wizard con círculos */
+        .nav-wizard {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+            list-style: none;
+        }
+
+        /* Línea conectora horizontal base (gris) */
+        .nav-wizard::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #dee2e6;
+            z-index: 0;
+        }
+
+        /* Línea de progreso coloreada */
+        .nav-wizard::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 0;
+            height: 2px;
+            background-color: #00c389;
+            /* Color verde para la línea de progreso */
+            z-index: 1;
+            transition: width 0.3s ease;
+        }
+
+        /* Ajustar el ancho de la línea de progreso según el paso activo */
+        .nav-wizard[data-active-step="1"]::after {
+            width: 0%;
+            /* Sin progreso */
+        }
+
+        .nav-wizard[data-active-step="2"]::after {
+            width: 33.33%;
+            /* Progreso hasta el segundo elemento */
+        }
+
+        .nav-wizard[data-active-step="3"]::after {
+            width: 66.66%;
+            /* Progreso hasta el tercer elemento */
+        }
+
+        .nav-wizard[data-active-step="4"]::after {
+            width: 100%;
+            /* Progreso completo */
+        }
+
+        .nav-wizard .nav-item {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 25%;
+        }
+
+        .wizard-circle-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .wizard-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background-color: #ffffff;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            margin: 0 auto;
+            color: #6c757d;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        /* Estilo para el paso activo (azul) */
+        .nav-wizard .nav-link.active .wizard-circle {
+            background-color: #2a7bff;
+            border-color: #2a7bff;
+            color: white;
+        }
+
+        /* Estilo para los pasos completados (verde) */
+        .nav-wizard .nav-link.completed .wizard-circle {
+            background-color: #00c389;
+            border-color: #00c389;
+            color: white;
+        }
+
+        /* Estilo para los textos debajo de los círculos */
+        .nav-wizard .nav-link {
+            color: #6c757d;
+            background-color: transparent !important;
+            padding: 0;
+        }
+
+        /* Estilo para el texto del paso activo */
+        .nav-wizard .nav-link.active {
+            color: #2a7bff;
+            font-weight: bold;
+        }
+
+        /* Estilo para el texto de los pasos completados */
+        .nav-wizard .nav-link.completed {
+            color: #00c389;
+            font-weight: normal;
+        }
+
+        /* Ajustes responsive */
+        @media (max-width: 576px) {
+            .wizard-circle {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .nav-wizard::before,
+            .nav-wizard::after {
+                top: 20px;
+            }
+        }
+    </style>
+
+    <script>
+        var isRTL = JSON.parse(localStorage.getItem('isRTL'));
+        if (isRTL) {
+            var linkDefaultFalcon = document.getElementById('style-default-falcon');
+            if (linkDefaultFalcon) linkDefaultFalcon.setAttribute('disabled', true);
+            document.querySelector('html').setAttribute('dir', 'rtl');
+        }
+    </script>
+</head>
+
+<body>
+    <main class="main" id="top">
+        <!-- Navbar: Aplicando clase personalizada navbar-landing-emprendeya -->
+        <nav class="navbar navbar-landing-emprendeya navbar-standard navbar-expand-lg fixed-top"
+            data-navbar-darken-on-scroll="data-navbar-darken-on-scroll">
+            <div class="container">
+                <a class="navbar-brand" href="index.html"> <!-- Enlace a tu dashboard principal si es diferente -->
+                    <img src="assets/img/emprendeya/logo_light.png" alt="Emprende Ya">
+                </a>
+                <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarStandard" aria-controls="navbarStandard" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse scrollbar" id="navbarStandard">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item"><a class="nav-link" href="#features">Características</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#cta">Comenzar</a></li>
+                        <li class="nav-item ms-2">
+                            <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#loginModal">Iniciar Sesión</button>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#registerWizardModal">Regístrate</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Encabezado (Hero Section) -->
+        <section class="py-5 overflow-hidden" id="banner" data-bs-theme="light">
+            <div class="bg-holder overlay"
+                style="background-image:url(assets/img/carousel-1.jpeg);background-position: center bottom;"></div>
+            <div class="container">
+                <div class="card card-space">
+                    <div class="row flex-center pt-8 pt-lg-10 pb-lg-9 pb-xl-0">
+                        <div class="col-md-11 col-lg-8 col-xl-6 pb-7 pb-xl-9 text-center text-xl-start">
+                            <h1 class="text-black fw-dark">Bienvenido a <span class="fw-bold">Emprende Ya</span><br />Tu
+                                Plataforma para el <span class="typed-text fw-bold"
+                                    data-typed-text='["Éxito","Crecimiento","Impacto"]'></span></h1>
+                            <p class="lead text-black opacity-75">Lleva tu idea al siguiente nivel con nuestras
+                                herramientas
+                                innovadoras, recursos exclusivos y una comunidad de emprendedores lista para apoyarte.
+                            </p>
+                            <button class="btn btn-primary btn-lg rounded-pill mt-4 fs-9 py-3 px-5"
+                                data-bs-toggle="modal" data-bs-target="#registerWizardModal">
+                                Comienza Ahora <span class="fas fa-rocket ms-2"
+                                    data-fa-transform="shrink-6 down-1"></span>
+                            </button>
+                        </div>
+                        <div class="col-xl-6 align-self-end mt-4 mt-xl-0">
+                            <div class="img-landing-banner rounded"
+                                style="background-image: url('assets/img/carousel-1.jpeg'); background-size: cover; background-position: center; height: 100%; min-height: 400px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Características -->
+        <section id="features" class="py-5">
+            <div class="container">
+                <div class="row justify-content-center text-center mb-5">
+                    <div class="col-lg-8 col-xl-7 col-xxl-6">
+                        <h1 class="fs-2 fs-sm-3 fs-md-4 fw-bold">Todo lo que necesitas para Emprender</h1>
+                        <p class="lead">Descubre las ventajas que "Emprende Ya" tiene para ofrecerte.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card card-stats card-round text-center h-100 shadow-sm">
+                            <!-- Clases de EmprendeYa/Kaiadmin -->
+                            <div class="card-body">
+                                <div class="icon-big text-center icon-primary bubble-shadow-small mb-3 mx-auto"
+                                    style="width: 60px; height: 60px; line-height: 60px; font-size: 1.75rem;">
+                                    <i class="fas fa-toolbox"></i>
+                                </div>
+                                <h5 class="card-title fw-bold">Herramientas Innovadoras</h5>
+                                <p class="card-text text-muted">Accede a un conjunto de herramientas diseñadas para
+                                    simplificar la gestión y el crecimiento de tu negocio.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card card-stats card-round text-center h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="icon-big text-center icon-success bubble-shadow-small mb-3 mx-auto"
+                                    style="width: 60px; height: 60px; line-height: 60px; font-size: 1.75rem;">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h5 class="card-title fw-bold">Comunidad Activa</h5>
+                                <p class="card-text text-muted">Conéctate con otros emprendedores, comparte experiencias
+                                    y colabora en proyectos.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card card-stats card-round text-center h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="icon-big text-center icon-info bubble-shadow-small mb-3 mx-auto"
+                                    style="width: 60px; height: 60px; line-height: 60px; font-size: 1.75rem;">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <h5 class="card-title fw-bold">Recursos Exclusivos</h5>
+                                <p class="card-text text-muted">Capacítate con nuestros cursos, webinars, plantillas y
+                                    guías elaboradas por expertos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonios (slider de Falcon) -->
+        <section id="testimonials" class="bg-light text-center py-5">
+            <!-- Cambiado bg-200 a bg-light para usar clase Bootstrap estándar -->
+            <div class="container">
+                <div class="row justify-content-center text-center mb-5">
+                    <div class="col-lg-8 col-xl-7 col-xxl-6">
+                        <h1 class="fs-2 fs-sm-3 fs-md-4 fw-bold">Lo que dicen nuestros usuarios</h1>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="swiper theme-slider"
+                            data-swiper='{"autoplay":true,"spaceBetween":20,"loop":true,"loopedSlides":5,"slidesPerView":1,"pagination":{"el":".swiper-pagination","clickable":true}}'>
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="px-5 px-sm-6">
+                                        <div class="avatar avatar-xl mb-3 mx-auto">
+                                            <!-- Clase avatar de EmprendeYa/Kaiadmin -->
+                                            <img src="assets/img/profile.jpg" alt="Usuario 1"
+                                                class="avatar-img rounded-circle">
+                                        </div>
+                                        <p class="fs-sm-1 fs-md-0 fst-italic text-dark">"Emprende Ya transformó mi
+                                            manera de ver los negocios. Las herramientas son increíbles y la comunidad
+                                            es muy activa. ¡Totalmente recomendado!"</p>
+                                        <p class="fs--1 text-muted">- Ana Pérez, Fundadora de "Dulces Momentos"</p>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="px-5 px-sm-6">
+                                        <div class="avatar avatar-xl mb-3 mx-auto">
+                                            <img src="assets/img/jm_denis.jpg" alt="Usuario 2"
+                                                class="avatar-img rounded-circle">
+                                        </div>
+                                        <p class="fs-sm-1 fs-md-0 fst-italic text-dark">"Desde que me uní a Emprende Ya,
+                                            he conectado con mentores y colaboradores que han sido clave para mi
+                                            proyecto."</p>
+                                        <p class="fs--1 text-muted">- Carlos López, CEO de "InnovaTech"</p>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="px-5 px-sm-6">
+                                        <div class="avatar avatar-xl mb-3 mx-auto">
+                                            <img src="assets/img/talha.jpg" alt="Usuario 3"
+                                                class="avatar-img rounded-circle">
+                                        </div>
+                                        <p class="fs-sm-1 fs-md-0 fst-italic text-dark">"¡Increíble plataforma! Fácil de
+                                            usar y con un soporte excepcional. Gracias a Emprende Ya, mi startup está
+                                            despegando."</p>
+                                        <p class="fs--1 text-muted">- Laura Gómez, Diseñadora en "Arte Digital"</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Llamado a la Acción (CTA) -->
+        <section id="cta" class="bg-dark py-5" data-bs-theme="light">
+            <div class="bg-holder overlay"
+                style="background-image:url(assets/img/generic/bg-2.jpg);background-position: center top;"></div>
+            <div class="container">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <h2 class="text-white mb-3">¿Listo para llevar tu emprendimiento al siguiente nivel?</h2>
+                        <p class="fs-1 fs-sm-0 text-white">Únete a Emprende Ya hoy mismo y accede a todas nuestras
+                            herramientas y comunidad.</p>
+                        <button class="btn btn-primary btn-lg rounded-pill mt-4 fs-9 py-3 px-5" data-bs-toggle="modal"
+                            data-bs-target="#registerWizardModal">
+                            Regístrate Gratis Ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Pie de Página (adaptado de index.html de EmprendeYa) -->
+        <footer class="footer text-dark mt-0" style="background-color: #ffffff">
+            <div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="container">
+                    <div class="row gx-5">
+                        <div class="col-lg-4 col-md-6 footer-about">
+                            <div class="d-flex flex-column align-items-center justify-content-center text-center h-100 p-4"
+                                style="background-color: #1a2035">
+                                <a href="index.html" class="navbar-brand d-flex align-items-center">
+                                    <img src="assets/img/emprendeya/logo_light.png" alt="Emprende Ya"
+                                        class="navbar-brand me-2" height="50" />
+                                </a>
+                                <p class="mt-3 mb-4 text-white">
+                                    Transformando ideas en negocios exitosos.
+                                </p>
+                                <div class="d-flex mt-2">
+                                    <a class="btn btn-icon btn-round btn-outline-light me-2" href="#"><i
+                                            class="fab fa-twitter"></i></a>
+                                    <a class="btn btn-icon btn-round btn-outline-light me-2" href="#"><i
+                                            class="fab fa-facebook-f"></i></a>
+                                    <a class="btn btn-icon btn-round btn-outline-light me-2" href="#"><i
+                                            class="fab fa-linkedin-in"></i></a>
+                                    <a class="btn btn-icon btn-round btn-outline-light" href="#"><i
+                                            class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-md-6 text-dark">
+                            <div class="row gx-5">
+                                <div class="col-lg-4 col-md-12 pt-5 mb-5">
+                                    <div class="section-title section-title-sm position-relative pb-3 mb-4">
+                                        <h3 class="text-dark mb-0">Ponte en Contacto</h3>
+                                    </div>
+                                    <div class="d-flex mb-2">
+                                        <i class="fas fa-map-marker-alt text-primary me-2 mt-1"></i>
+                                        <p class="mb-0">Cra. 20a # 14-54, Pasto, Nariño</p>
+                                    </div>
+                                    <div class="d-flex mb-2">
+                                        <i class="fas fa-envelope text-primary me-2 mt-1"></i>
+                                        <p class="mb-0">emprendeya.soporte@gmail.com</p>
+                                    </div>
+                                    <div class="d-flex mb-2">
+                                        <i class="fas fa-phone text-primary me-2 mt-1"></i>
+                                        <p class="mb-0">+57 321 9118 593</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-12 pt-0 pt-lg-5 mb-5">
+                                    <div class="section-title section-title-sm position-relative pb-3 mb-4">
+                                        <h3 class="text-dark mb-0">Enlaces Rápidos</h3>
+                                    </div>
+                                    <div class="link-animated d-flex flex-column justify-content-start">
+                                        <a class="text-dark mb-2 nav-link" href="#banner"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Inicio</a>
+                                        <a class="text-dark mb-2 nav-link" href="#features"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Características</a>
+                                        <a class="text-dark mb-2 nav-link" href="#testimonials"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Testimonios</a>
+                                        <a class="text-dark mb-2 nav-link" href="#cta"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Comenzar</a>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-12 pt-0 pt-lg-5 mb-5">
+                                    <div class="section-title section-title-sm position-relative pb-3 mb-4">
+                                        <h3 class="text-dark mb-0">Legal</h3>
+                                    </div>
+                                    <div class="link-animated d-flex flex-column justify-content-start">
+                                        <a class="text-dark mb-2 nav-link" href="#"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Términos y
+                                            Condiciones</a>
+                                        <a class="text-dark mb-2 nav-link" href="#"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Política de
+                                            Privacidad</a>
+                                        <a class="text-dark nav-link" href="#"><i
+                                                class="fas fa-arrow-right text-primary me-2"></i>Política de Cookies</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid d-flex justify-content-center align-items-center py-3 border-top">
+                <div class="copyright text-dark text-center">
+                    ©
+                    <script>document.write(new Date().getFullYear());</script> EmprendeYA, todos los derechos
+                    reservados. Hecho con <i class="fa fa-heart heart text-danger"></i> por Talento Local.
+                </div>
+            </div>
+        </footer>
+
+        <!-- Modal de Inicio de Sesión -->
+        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #1a2035; color: white;">
+                        <!-- Estilo EmprendeYa -->
+                        <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión en Emprende Ya</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label" for="login-email">Correo Electrónico</label>
+                                <input class="form-control" id="login-email" type="email" placeholder="tu@correo.com" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="login-password">Contraseña</label>
+                                <input class="form-control" id="login-password" type="password"
+                                    placeholder="Contraseña" />
+                            </div>
+                            <div class="row flex-between-center">
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="modal-checkbox-remember" />
+                                        <label class="form-check-label" for="modal-checkbox-remember">Recuérdame</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><a class="fs--1" href="#!">¿Olvidaste tu contraseña?</a></div>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <button class="btn btn-primary d-block w-100" type="submit" name="submit">Iniciar
+                                    Sesión</button>
+                            </div>
+                        </form>
+                        <div class="position-relative mt-4">
+                            <hr class="text-200" />
+                            <div class="divider-content-center">o inicia sesión con</div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-sm-6"><a class="btn btn-outline-danger btn-sm d-block w-100" href="#"><span
+                                        class="fab fa-google me-2"></span> Google</a></div>
+                            <div class="col-sm-6"><a class="btn btn-outline-primary btn-sm d-block w-100" href="#"><span
+                                        class="fab fa-facebook-square me-2"></span> Facebook</a></div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <p class="fs--1 text-600 mb-0">¿No tienes una cuenta? <a href="#!" data-bs-dismiss="modal"
+                                    data-bs-toggle="modal" data-bs-target="#registerWizardModal">Regístrate aquí</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Registro con Wizard -->
+        <div class="modal fade" id="registerWizardModal" tabindex="-1" aria-labelledby="registerWizardModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- modal-lg para más espacio -->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #1a2035; color: white;">
+                        <h5 class="modal-title" id="registerWizardModalLabel">Regístrate en EmprendeYa</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <!-- Contenido del Wizard (copiado y adaptado de wizard.html) -->
+
+                        <div class="card theme-wizard m-0" id="wizardEmprendeYa"> <!-- ID único para el wizard -->
+                            <div class="card-header bg-light pt-3 pb-2 border-bottom-0">
+                                <ul class="nav nav-wizard justify-content-between" data-active-step="2">
+                                    <!-- El valor "2" indica que estamos en el segundo paso (Personal) -->
+                                    <li class="nav-item">
+                                        <a class="nav-link completed fw-semi-bold" href="#wizardEyStep1"
+                                            data-bs-toggle="tab" data-wizard-step="1">
+                                            <div class="wizard-circle-container">
+                                                <div class="wizard-circle">
+                                                    <span class="fas fa-lock"></span>
+                                                </div>
+                                            </div>
+                                            <span class="d-block mt-2 fs--1">Cuenta</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link active fw-semi-bold" href="#wizardEyStep2"
+                                            data-bs-toggle="tab" data-wizard-step="2">
+                                            <div class="wizard-circle-container">
+                                                <div class="wizard-circle">
+                                                    <span class="fas fa-user"></span>
+                                                </div>
+                                            </div>
+                                            <span class="d-block mt-2 fs--1">Personal</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link fw-semi-bold" href="#wizardEyStep3" data-bs-toggle="tab"
+                                            data-wizard-step="3">
+                                            <div class="wizard-circle-container">
+                                                <div class="wizard-circle">
+                                                    <span class="fas fa-dollar-sign"></span>
+                                                </div>
+                                            </div>
+                                            <span class="d-block mt-2 fs--1">Rol</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link fw-semi-bold" href="#wizardEyStep4" data-bs-toggle="tab"
+                                            data-wizard-step="4">
+                                            <div class="wizard-circle-container">
+                                                <div class="wizard-circle">
+                                                    <span class="fas fa-thumbs-up"></span>
+                                                </div>
+                                            </div>
+                                            <span class="d-block mt-2 fs--1">Listo</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body py-4 px-sm-3 px-md-5" id="wizard-controller-emprendeya">
+                                <div class="tab-content">
+                                    <!-- Pestaña 1: Cuenta -->
+                                    <div class="tab-pane active" role="tabpanel" aria-labelledby="wizardEyStep1"
+                                        id="wizardEyStep1">
+                                        <form class="needs-validation" novalidate data-wizard-form="1">
+                                            <div class="mb-3"><label class="form-label" for="wizardName">Nombre
+                                                    Completo*</label><input class="form-control" type="text" name="name"
+                                                    placeholder="Ej: Juan Pérez" id="wizardName" required />
+                                                <div class="invalid-feedback">Por favor, ingresa tu nombre.</div>
+                                            </div>
+                                            <div class="mb-3"><label class="form-label" for="wizardEmail">Correo
+                                                    Electrónico*</label><input class="form-control" type="email"
+                                                    name="email" placeholder="tu@correo.com"
+                                                    pattern="^([a-zA-Z0-9_\.\-])+@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$"
+                                                    required id="wizardEmail" data-wizard-validate-email="true" />
+                                                <div class="invalid-feedback">Debes ingresar un correo válido.</div>
+                                            </div>
+                                            <div class="row gx-2">
+                                                <div class="col-md-6 mb-3"><label class="form-label"
+                                                        for="wizardPassword">Contraseña*</label><input
+                                                        class="form-control" type="password" name="password"
+                                                        placeholder="Crea una contraseña" required id="wizardPassword"
+                                                        data-wizard-password="true" />
+                                                    <div class="invalid-feedback">Por favor, ingresa una contraseña.
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3"><label class="form-label"
+                                                        for="wizardConfirmPassword">Confirmar Contraseña*</label><input
+                                                        class="form-control" type="password" name="confirmPassword"
+                                                        placeholder="Confirma tu contraseña" required
+                                                        id="wizardConfirmPassword"
+                                                        data-wizard-confirm-password="true" />
+                                                    <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
+                                                </div>
+                                            </div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"
+                                                    name="terms" required checked id="wizardCheckbox" /><label
+                                                    class="form-check-label" for="wizardCheckbox">Acepto los <a
+                                                        href="#!">términos</a> y <a href="#!">política de
+                                                        privacidad</a></label>
+                                                <div class="invalid-feedback">Debes aceptar los términos.</div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Pestaña 2: Personal -->
+                                    <div class="tab-pane" role="tabpanel" aria-labelledby="wizardEyStep2"
+                                        id="wizardEyStep2">
+                                        <form novalidate data-wizard-form="2">
+                                            <div class="mb-3">
+                                                <div class="row" data-dropzone="data-dropzone"
+                                                    data-options='{"maxFiles":1,"data":[{"name":"avatar.png","size":"54kb","url":"assets/img/team"}]}'>
+                                                    <div class="fallback"><input type="file" name="file" /></div>
+                                                    <div class="col-md-auto">
+                                                        <div class="dz-preview dz-preview-single">
+                                                            <div
+                                                                class="dz-preview-cover d-flex align-items-center justify-content-center mb-3 mb-md-0">
+                                                                <div class="avatar avatar-4xl"><img
+                                                                        class="rounded-circle"
+                                                                        src="assets/img/profile-signin.jpg" alt="..."
+                                                                        data-dz-thumbnail="data-dz-thumbnail" /></div>
+                                                                <div class="dz-progress"><span class="dz-upload"
+                                                                        data-dz-uploadprogress=""></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md">
+                                                        <div class="dz-message dropzone-area px-2 py-3"
+                                                            data-dz-message="data-dz-message">
+                                                            <div class="text-center">
+                                                                <img class="me-2" src="assets/img/profile-signin.jpg"
+                                                                    width="25" alt="" />Sube tu foto de perfil
+                                                                <p class="mb-0 fs--1 text-400">Sube una imagen JPG de
+                                                                    300x300<br />(máx. 400KB)</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"><label class="form-label"
+                                                    for="wizardGender">Género</label><select class="form-select"
+                                                    name="gender" id="wizardGender">
+                                                    <option value="">Selecciona tu género...</option>
+                                                    <option value="Male">Masculino</option>
+                                                    <option value="Female">Femenino</option>
+                                                    <option value="Other">Otro</option>
+                                                </select></div>
+                                            <div class="mb-3"><label class="form-label"
+                                                    for="wizardPhone">Teléfono</label><input class="form-control"
+                                                    type="text" name="phone" placeholder="Ej: +57 312 1234567"
+                                                    id="wizardPhone" /></div>
+                                            <div class="mb-3"><label class="form-label" for="wizardDatepicker">Fecha de
+                                                    Nacimiento</label><input class="form-control datetimepicker"
+                                                    type="text" placeholder="dd/mm/aaaa"
+                                                    data-options='{"dateFormat":"d/m/Y","disableMobile":true}'
+                                                    id="wizardDatepicker" name="fecha_nacimiento" /></div>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="wizardMunicipio">Municipio</label>
+                                                <select class="form-select" name="municipio" id="wizardMunicipio">
+                                                    <option value="">Selecciona tu Municipio...</option>
+                                                    <option value="Alban">Albán</option>
+                                                    <option value="Aldana">Aldana</option>
+                                                    <option value="Ancuya">Ancuya</option>
+                                                    <option value="Arboleda">Arboleda</option>
+                                                    <option value="Barbacoas">Barbacoas</option>
+                                                    <option value="Belen">Belén</option>
+                                                    <option value="Buesaco">Buesaco</option>
+                                                    <option value="Colon">Colón</option>
+                                                    <option value="Consaca">Consacá</option>
+                                                    <option value="Contadero">Contadero</option>
+                                                    <option value="Cordoba">Córdoba</option>
+                                                    <option value="Cuaspud">Cuaspud</option>
+                                                    <option value="Cumbal">Cumbal</option>
+                                                    <option value="Cumbitara">Cumbitara</option>
+                                                    <option value="Chachagui">Chachagüí</option>
+                                                    <option value="ElCharco">El Charco</option>
+                                                    <option value="ElPenol">El Peñol</option>
+                                                    <option value="ElRosario">El Rosario</option>
+                                                    <option value="ElTablon">El Tablón de Gómez</option>
+                                                    <option value="ElTambo">El Tambo</option>
+                                                    <option value="FranciscoPizarro">Francisco Pizarro</option>
+                                                    <option value="Funes">Fúnes</option>
+                                                    <option value="Guachucal">Guachucal</option>
+                                                    <option value="Guaitarilla">Guaitarilla</option>
+                                                    <option value="Gualmatan">Gualmatán</option>
+                                                    <option value="Iles">Iles</option>
+                                                    <option value="Imues">Imués</option>
+                                                    <option value="Ipiales">Ipiales</option>
+                                                    <option value="LaCruz">La Cruz</option>
+                                                    <option value="LaFlorida">La Florida</option>
+                                                    <option value="LaLlanada">La Llanada</option>
+                                                    <option value="LaTola">La Tola</option>
+                                                    <option value="LaUnion">La Unión</option>
+                                                    <option value="Leiva">Leiva</option>
+                                                    <option value="Linares">Linares</option>
+                                                    <option value="LosAndes">Los Andes</option>
+                                                    <option value="MaguiPayan">Magüí Payán</option>
+                                                    <option value="Mallama">Mallama</option>
+                                                    <option value="Mosquera">Mosquera</option>
+                                                    <option value="Narino">Nariño</option>
+                                                    <option value="OlayaHerrera">Olaya Herrera</option>
+                                                    <option value="Ospina">Ospina</option>
+                                                    <option value="Pasto">Pasto</option>
+                                                    <option value="Policarpa">Policarpa</option>
+                                                    <option value="Potosi">Potosí</option>
+                                                    <option value="Providencia">Providencia</option>
+                                                    <option value="Puerres">Puerres</option>
+                                                    <option value="Pupiales">Pupiales</option>
+                                                    <option value="Ricaurte">Ricaurte</option>
+                                                    <option value="RobertoPayan">Roberto Payán</option>
+                                                    <option value="Samaniego">Samaniego</option>
+                                                    <option value="SanBernardo">San Bernardo</option>
+                                                    <option value="SanLorenzo">San Lorenzo</option>
+                                                    <option value="SanPablo">San Pablo</option>
+                                                    <option value="SanPedroDeCartago">San Pedro de Cartago</option>
+                                                    <option value="Sandona">Sandoná</option>
+                                                    <option value="SantaBarbara">Santa Bárbara</option>
+                                                    <option value="Santacruz">Santacruz</option>
+                                                    <option value="Sapuyes">Sapuyes</option>
+                                                    <option value="Taminango">Taminango</option>
+                                                    <option value="Tangua">Tangua</option>
+                                                    <option value="Tumaco">Tumaco</option>
+                                                    <option value="Tuquerres">Túquerres</option>
+                                                    <option value="Yacuanquer">Yacuanquer</option>
+                                                </select>
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                    <!-- Pestaña 3: Facturación -->
+                                    <!-- Pestaña 3: rol-->
+                                    <div class="tab-pane" role="tabpanel" aria-labelledby="wizardEyStep3"
+                                        id="wizardEyStep3">
+                                        <form class="needs-validation" novalidate data-wizard-form="3">
+                                            <div class="row g-2">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label" for="wizardUserType">Tipo de
+                                                        usuario</label>
+                                                    <select class="form-select" name="userType" id="wizardUserType"
+                                                        required>
+                                                        <option value="">Selecciona tu tipo de usuario...</option>
+                                                        <option value="Emprendedor">Emprendedor</option>
+                                                        <option value="Inversor">Inversor</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Selecciona tu tipo de usuario.</div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- Pestaña 4: Finalizado -->
+                                    <div class="tab-pane text-center" role="tabpanel" aria-labelledby="wizardEyStep4"
+                                        id="wizardEyStep4">
+                                        <div class="wizard-lottie-wrapper">
+                                            <div class="lottie wizard-lottie mx-auto my-3"
+                                                data-options='{"path":"assets/img/animated-icons/celebration.json", "loop": false}'>
+                                            </div>
+                                        </div>
+                                        <h4 class="mb-1">¡Tu cuenta está lista!</h4>
+                                        <p>Ahora puedes acceder a Emprende Ya y comenzar tu viaje.</p>
+                                        <button class="btn btn-primary px-5 my-3"
+                                            data-bs-dismiss="modal">Comenzar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-light border-top-0">
+                                <div class="px-sm-3 px-md-5">
+                                    <ul class="pager wizard list-inline mb-0">
+                                        <li class="previous"><button class="btn btn-link ps-0" type="button"><span
+                                                    class="fas fa-chevron-left me-2"
+                                                    data-fa-transform="shrink-3"></span>Anterior</button></li>
+                                        <li class="next ms-auto"><button class="btn btn-primary px-5 px-sm-6"
+                                                type="submit">Siguiente<span class="fas fa-chevron-right ms-2"
+                                                    data-fa-transform="shrink-3"> </span></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        // En tu función handleRegistrationSubmit que te mostré antes
+        async function handleRegistrationSubmit(event) {
+            event.preventDefault();
+
+            // ... (validación del lado del cliente si la tienes)
+
+            const wizardFormContainer = document.getElementById('wizardEmprendeYa'); // Contenedor del wizard
+            const formData = new FormData();
+
+            // Recolectar datos de la Pestaña 1 (Cuenta)
+            formData.append('name', wizardFormContainer.querySelector('#wizardName').value);
+            formData.append('email', wizardFormContainer.querySelector('#wizardEmail').value);
+            formData.append('password', wizardFormContainer.querySelector('#wizardPassword').value);
+            if (wizardFormContainer.querySelector('#wizardCheckbox').checked) {
+                formData.append('terms', 'on'); // 'on' o true, como lo maneje tu PHP
+            }
+
+            // Recolectar datos de la Pestaña 2 (Personal)
+            const profilePicInput = wizardFormContainer.querySelector('input[type="file"][name="file"]');
+            if (profilePicInput && profilePicInput.files[0]) {
+                formData.append('file', profilePicInput.files[0]);
+            }
+            formData.append('gender', wizardFormContainer.querySelector('#wizardGender').value);
+            formData.append('phone', wizardFormContainer.querySelector('#wizardPhone').value);
+            formData.append('fecha_nacimiento', wizardFormContainer.querySelector('#wizardDatepicker').value); // Asegúrate que el valor sea d/m/Y
+            formData.append('municipio', wizardFormContainer.querySelector('#wizardMunicipio').value);
+
+            // Recolectar datos de la Pestaña 3 (Rol)
+            formData.append('userType', wizardFormContainer.querySelector('#wizardUserType').value);
+
+            // Deshabilitar botones de "Siguiente/Anterior" para evitar doble envío
+            // document.querySelector('#wizardEmprendeYa .pager .previous button').disabled = true;
+            // document.querySelector('#wizardEmprendeYa .pager .next button').disabled = true;
+            // Mostrar algún indicador de carga...
+
+            try {
+                const response = await fetch('backend-php/register.php', { // CAMBIA ESTA RUTA
+                    method: 'POST',
+                    body: formData // FormData se encarga del Content-Type para multipart/form-data
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Registro exitoso:', result.message);
+                    // Avanzar al paso "Listo" del wizard
+                    // Por ejemplo: new bootstrap.Tab(document.querySelector('a[href="#wizardEyStep4"]')).show();
+                    // O si tu wizard tiene un API: wizardInstance.navigateToStep(4);
+                    // Y luego, el botón "Comenzar" en wizardEyStep4 ya tiene data-bs-dismiss="modal"
+                    alert(result.message); // O mostrarlo de forma más elegante
+                    // Cerrar el modal si el paso "Listo" no lo hace automáticamente y redirigir si es necesario
+                    // const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerWizardModal'));
+                    // if (registerModal) registerModal.hide();
+                    // window.location.href = '/login.php'; // O a donde quieras
+                } else {
+                    console.error('Error en el registro:', result.message);
+                    alert('Error: ' + result.message); // Mostrar el error al usuario
+                }
+            } catch (error) {
+                console.error('Error de red o al procesar la petición:', error);
+                alert('Error de conexión. Inténtalo de nuevo.');
+            } finally {
+                // Reactivar botones si es necesario (especialmente si hay error)
+                // document.querySelector('#wizardEmprendeYa .pager .previous button').disabled = false;
+                // document.querySelector('#wizardEmprendeYa .pager .next button').disabled = false;
+                // Ocultar indicador de carga...
+            }
+        }
+
+        // Recuerda asociar handleRegistrationSubmit al evento correcto del botón "Siguiente"
+        // cuando se está en la última pestaña de datos (Rol).
+        // Esto puede requerir que tu JS del wizard permita interceptar o modificar la acción del "Siguiente".
+        // Si el botón "Siguiente" tiene type="submit" y está dentro del último <form> relevante:
+        const rolForm = document.querySelector('#wizardEyStep3 form'); // Asumiendo que este es el form de la pestaña de Rol
+        if (rolForm) {
+            // El botón "Siguiente" del footer podría ser el que realmente haga el submit de todo.
+            // Necesitas que el botón "Siguiente" del wizard, cuando está en el último paso de datos,
+            // ejecute `handleRegistrationSubmit` en lugar de solo pasar a la siguiente pestaña.
+
+            // Esto es un poco más complejo de integrar con un wizard preexistente.
+            // Una forma es que el botón "Siguiente" del wizard, al llegar al último paso de datos,
+            // cambie su comportamiento o su `type` a `button` y tenga un `id` específico
+            // para añadirle un event listener que llame a `handleRegistrationSubmit`.
+
+            // O, si el wizard tiene un evento "onFinish" o "onBeforeLastNext":
+            // wizardInstance.on('finish', handleRegistrationSubmit);
+        }
+
+        // La forma más directa si el botón "Siguiente" en el footer es genérico:
+        // Debes modificar la lógica de tu wizard.js o el HTML para que el último "Siguiente" (el de la pestaña Rol)
+        // dispare esta función.
+        // Por ejemplo, puedes añadir un ID al botón "Siguiente" cuando está en el contexto de la pestaña Rol
+        // o modificar el script del wizard.
+        // Si el script del wizard es genérico y no puedes modificarlo, podrías hacer esto:
+        // Detecta cuándo la pestaña "Rol" está activa y el usuario hace clic en "Siguiente".
+        // Este es un ejemplo muy básico y puede necesitar ajustes según tu wizard:
+        const nextButtonWizard = document.querySelector('#wizardEmprendeYa .card-footer .next button');
+        if (nextButtonWizard) {
+            nextButtonWizard.addEventListener('click', function (e) {
+                const activeTab = document.querySelector('#wizardEmprendeYa .tab-content .tab-pane.active');
+                if (activeTab && activeTab.id === 'wizardEyStep3') {
+                    // Estamos en la pestaña de Rol y se hizo clic en Siguiente
+                    // El wizard intentará ir a la pestaña "Listo", pero antes llamamos a nuestro submit.
+                    handleRegistrationSubmit(e); // `e` ya está aquí, `e.preventDefault()` se llamará dentro
+                }
+                // Si no es la pestaña de Rol, dejas que el wizard maneje el click (si no hiciste preventDefault antes)
+            });
+        }
+    </script>
+    <script>document.addEventListener('DOMContentLoaded', function () {
+            // Referencias al wizard y sus componentes
+            const wizardElement = document.getElementById('wizardEmprendeYa');
+            if (!wizardElement) return;
+
+            const wizardNav = wizardElement.querySelector('.nav-wizard');
+            const tabContent = wizardElement.querySelector('.tab-content');
+            const tabs = Array.from(tabContent.querySelectorAll('.tab-pane'));
+            const prevBtn = wizardElement.querySelector('.pager .previous button');
+            const nextBtn = wizardElement.querySelector('.pager .next button');
+
+            // Establecer la primera pestaña como activa por defecto
+            tabs[0].classList.add('active');
+            const navLinks = Array.from(wizardNav.querySelectorAll('.nav-link'));
+            navLinks[0].classList.add('active');
+
+            // Actualizar el atributo data-active-step en el nav
+            function updateActiveStep(stepIndex) {
+                wizardNav.setAttribute('data-active-step', stepIndex + 1);
+
+                // Actualizar clases de los enlaces de navegación
+                navLinks.forEach((link, i) => {
+                    link.classList.remove('active', 'completed');
+                    if (i < stepIndex) {
+                        link.classList.add('completed');
+                    } else if (i === stepIndex) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // Mostrar/ocultar botón anterior según el paso
+                if (stepIndex === 0) {
+                    prevBtn.classList.add('d-none');
+                } else {
+                    prevBtn.classList.remove('d-none');
+                }
+
+                // Cambiar el texto del botón siguiente en el último paso
+                if (stepIndex === tabs.length - 1) {
+                    nextBtn.textContent = 'Finalizar';
+                } else {
+                    nextBtn.innerHTML = 'Siguiente<span class="fas fa-chevron-right ms-2" data-fa-transform="shrink-3"></span>';
+                }
+            }
+
+            // Función para cambiar a la pestaña especificada
+            function goToStep(stepIndex) {
+                // Ocultar todas las pestañas
+                tabs.forEach(tab => tab.classList.remove('active'));
+
+                // Mostrar la pestaña actual
+                tabs[stepIndex].classList.add('active');
+
+                // Actualizar la navegación
+                updateActiveStep(stepIndex);
+
+                // Validar el formulario actual antes de continuar (opcional)
+                if (stepIndex > 0) {
+                    const previousForm = tabs[stepIndex - 1].querySelector('form');
+                    if (previousForm && previousForm.classList.contains('needs-validation')) {
+                        if (!previousForm.checkValidity()) {
+                            previousForm.classList.add('was-validated');
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            // Manejar clic en los enlaces de navegación del wizard
+            navLinks.forEach((link, index) => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    goToStep(index);
+                });
+            });
+
+            // Manejar clic en el botón anterior
+            prevBtn.addEventListener('click', function () {
+                const currentStepIndex = parseInt(wizardNav.getAttribute('data-active-step')) - 1;
+                if (currentStepIndex > 0) {
+                    goToStep(currentStepIndex - 1);
+                }
+            });
+
+            // Manejar clic en el botón siguiente
+            nextBtn.addEventListener('click', function () {
+                const currentStepIndex = parseInt(wizardNav.getAttribute('data-active-step')) - 1;
+                if (currentStepIndex < tabs.length - 1) {
+                    const currentForm = tabs[currentStepIndex].querySelector('form');
+
+                    // Si hay un formulario que necesita validación
+                    if (currentForm && currentForm.classList.contains('needs-validation')) {
+                        currentForm.classList.add('was-validated');
+                        if (!currentForm.checkValidity()) {
+                            return; // No avanzar si el formulario no es válido
+                        }
+                    }
+
+                    goToStep(currentStepIndex + 1);
+                } else {
+                    // Estamos en el último paso, aquí podrías enviar todos los datos
+                    console.log('Wizard completado');
+                    // Aquí podrías agregar el código para enviar los datos al servidor
+                }
+            });
+
+            // Inicializar el wizard
+            updateActiveStep(0);
+        });</script>
+
+    <!-- Core JS Files de EmprendeYa (Kaiadmin) -->
+    <script src="assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+
+
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+    <!-- Theme JS de Falcon para inicializar sus componentes (swiper, typed, wizard) -->
+    <script src="assets/js/theme.js"></script>
+
+    <!-- JS específico de EmprendeYa (Kaiadmin) -->
+    <script src="assets/js/emprendeya-2.js"></script>
+    <!-- <script src="assets/js/setting-emprendeya.js"></script> --> <!-- No necesario para landing -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Inicializar tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Typed.js (asegurarse que se inicialice si theme.js no lo hace)
+            const typedElement = document.querySelector('.typed-text');
+            if (typedElement) {
+                const typedOptions = JSON.parse(typedElement.dataset.typedText);
+                new Typed(typedElement, {
+                    strings: typedOptions,
+                    typeSpeed: 80,
+                    backSpeed: 50,
+                    loop: true,
+                    showCursor: false,
+                });
+            }
+
+            // Swiper (asegurarse que se inicialice si theme.js no lo hace)
+            const swiperElements = document.querySelectorAll('.swiper.theme-slider');
+            swiperElements.forEach(swiperEl => {
+                if (swiperEl.dataset.swiper) {
+                    let options = JSON.parse(swiperEl.dataset.swiper);
+                    new Swiper(swiperEl, options);
+                }
+            });
+
+
+            const registerWizardModal = document.getElementById('registerWizardModal');
+            if (registerWizardModal) {
+                registerWizardModal.addEventListener('shown.bs.modal', function () {
+                    const wizardEl = document.getElementById('wizardEmprendeYa'); // ID del wizard dentro del modal
+                    if (wizardEl && typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Theme !== 'undefined' && typeof window.bootstrap.Theme.Utils !== 'undefined') {
+
+                        const { getData, getItemFromStore } = window.bootstrap.Theme.Utils; /
+                        if (wizardEl) {
+                            const wizard = new window.bootstrap.Wizard(wizardEl); // Inicializar el Wizard
+                        }
+
+                        // Re-inicializar el validador para los formularios del wizard si es necesario
+                        // Esto es un placeholder, el theme.js de Falcon debería manejar esto.
+                        wizardEl.querySelectorAll('form[data-wizard-form]').forEach(form => {
+                            if (typeof validator !== 'undefined') { // Chequear si validator.js está cargado
+                                // validator(form); // Esto es una suposición de cómo podría funcionar
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Smooth scroll para los enlaces del navbar de la landing
+            const navLinks = document.querySelectorAll('.navbar-landing-emprendeya .nav-link[href^="#"]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // Cerrar el menú responsivo si está abierto
+                        const navbarToggler = document.querySelector('.navbar-landing-emprendeya .navbar-toggler');
+                        const navbarCollapse = document.querySelector('.navbar-landing-emprendeya .collapse');
+                        if (navbarCollapse.classList.contains('show')) {
+                            navbarToggler.click();
+                        }
+                        // Scroll suave
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 70, // Ajustar el offset según la altura del navbar
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
+    <script>document.addEventListener('DOMContentLoaded', function () {
+            const tabLinks = document.querySelectorAll('.nav-wizard .nav-link');
+            const navWizard = document.querySelector('.nav-wizard');
+
+            // Función para actualizar el estado visual del wizard
+            function updateWizardState(currentStep) {
+                // Actualizar el atributo data-active-step
+                navWizard.setAttribute('data-active-step', currentStep);
+
+                // Actualizar las clases de los enlaces
+                tabLinks.forEach(link => {
+                    const step = parseInt(link.dataset.wizardStep);
+
+                    if (step < currentStep) {
+                        // Los pasos anteriores se marcan como completados (verde)
+                        link.classList.remove('active');
+                        link.classList.add('completed');
+                    } else if (step == currentStep) {
+                        // El paso actual se marca como activo (azul)
+                        link.classList.add('active');
+                        link.classList.remove('completed');
+                    } else {
+                        // Los pasos futuros no tienen marca especial
+                        link.classList.remove('active', 'completed');
+                    }
+                });
+            }
+
+            // Configurar los event listeners para los cambios de pestaña
+            tabLinks.forEach(link => {
+                link.addEventListener('shown.bs.tab', function (event) {
+                    const currentStep = parseInt(event.target.dataset.wizardStep);
+                    updateWizardState(currentStep);
+                });
+            });
+
+            // Inicializar el estado del wizard basado en la pestaña activa
+            const activeTab = document.querySelector('.nav-wizard .nav-link.active');
+            if (activeTab) {
+                const initialStep = parseInt(activeTab.dataset.wizardStep);
+                updateWizardState(initialStep);
+            }
+        });</script>
+
+</body>
+
+</html>
