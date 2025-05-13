@@ -5,12 +5,12 @@
 // ---------------------------------------------------------------------
 
 if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+  session_start();
 }
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: landing.html'); // O tu página de login
-    exit;
+  header('Location: landing.html'); 
+  exit;
 }
 
 // --- Recuperación de todas las variables de sesión relevantes ---
@@ -19,94 +19,50 @@ if (!isset($_SESSION['user_id'])) {
 $sesion_user_id = $_SESSION['user_id'];
 
 // Datos de la tabla 'usuarios' que guardaste en la sesión:
-$sesion_nombre_completo = isset($_SESSION['user_name']) 
-                        ? htmlspecialchars($_SESSION['user_name']) 
-                        : 'N/A'; // Nombre completo
+$sesion_nombre_completo = isset($_SESSION['user_name'])
+  ? htmlspecialchars($_SESSION['user_name'])
+  : 'N/A'; // Nombre completo
 
-$sesion_email_usuario = isset($_SESSION['user_email']) 
-                      ? htmlspecialchars($_SESSION['user_email']) 
-                      : 'N/A'; // Email
+$sesion_email_usuario = isset($_SESSION['user_email'])
+  ? htmlspecialchars($_SESSION['user_email'])
+  : 'N/A'; // Email
 
-$sesion_rol_usuario = isset($_SESSION['user_role']) 
-                    ? htmlspecialchars($_SESSION['user_role']) 
-                    : 'N/A'; // Rol (Emprendedor, Inversor)
+$sesion_rol_usuario = isset($_SESSION['user_role'])
+  ? htmlspecialchars($_SESSION['user_role'])
+  : 'N/A'; // Rol (Emprendedor, Inversor)
 
-$sesion_acepta_terminos = isset($_SESSION['user_terms_accepted']) 
-                        ? (bool)$_SESSION['user_terms_accepted'] // Convertir a booleano
-                        : false; // Acepta términos
+$sesion_acepta_terminos = isset($_SESSION['user_terms_accepted'])
+  ? (bool)$_SESSION['user_terms_accepted'] // Convertir a booleano
+  : false; // Acepta términos
 
 $sesion_foto_perfil_url = isset($_SESSION['user_photo_url']) && !empty($_SESSION['user_photo_url'])
-                         ? htmlspecialchars($_SESSION['user_photo_url']) 
-                         : 'assets/img/profile-signin.jpg'; // Foto de perfil URL (con default)
+  ? htmlspecialchars($_SESSION['user_photo_url'])
+  : 'assets/img/profile-signin.jpg'; // Foto de perfil URL (con default)
 
-$sesion_genero_usuario = isset($_SESSION['user_gender']) 
-                       ? htmlspecialchars($_SESSION['user_gender']) 
-                       : 'N/A'; // Género
+$sesion_genero_usuario = isset($_SESSION['user_gender'])
+  ? htmlspecialchars($_SESSION['user_gender'])
+  : 'N/A'; // Género
 
 $sesion_telefono_usuario = isset($_SESSION['user_phone']) && !empty($_SESSION['user_phone'])
-                          ? htmlspecialchars($_SESSION['user_phone']) 
-                          : 'N/A'; // Teléfono
+  ? htmlspecialchars($_SESSION['user_phone'])
+  : 'N/A'; // Teléfono
 
 $sesion_fecha_nacimiento = isset($_SESSION['user_birth_date']) && !empty($_SESSION['user_birth_date'])
-                           ? htmlspecialchars($_SESSION['user_birth_date']) // Formato YYYY-MM-DD de la DB
-                           : 'N/A'; // Fecha de nacimiento
+  ? htmlspecialchars($_SESSION['user_birth_date']) // Formato YYYY-MM-DD de la DB
+  : 'N/A'; // Fecha de nacimiento
 
 $sesion_municipio_usuario = isset($_SESSION['user_municipality']) && !empty($_SESSION['user_municipality'])
-                           ? htmlspecialchars($_SESSION['user_municipality']) 
-                           : 'N/A'; // Municipio
+  ? htmlspecialchars($_SESSION['user_municipality'])
+  : 'N/A'; // Municipio
 
 $sesion_fecha_registro = isset($_SESSION['user_registration_date']) && !empty($_SESSION['user_registration_date'])
-                         ? htmlspecialchars($_SESSION['user_registration_date']) // Formato de timestamp
-                         : 'N/A'; // Fecha de registro
+  ? htmlspecialchars($_SESSION['user_registration_date']) // Formato de timestamp
+  : 'N/A'; // Fecha de registro
 
-$sesion_cuenta_verificada = isset($_SESSION['user_account_verified']) 
-                          ? (bool)$_SESSION['user_account_verified'] // Convertir a booleano
-                          : false; // Cuenta verificada
+$sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
+  ? (bool)$_SESSION['user_account_verified'] // Convertir a booleano
+  : false; // Cuenta verificada
 
-
-// El bloque opcional de "Refrescar datos de sesión desde la base de datos" sigue siendo válido
-// si quieres implementarlo, pero ahora tendría que actualizar todas estas variables.
-// Por simplicidad, lo mantengo comentado.
-/*
-if (isset($_SESSION['last_db_refresh']) && (time() - $_SESSION['last_db_refresh'] > 300)) {
-    // ... lógica para refrescar TODAS las variables de sesión desde la BD ...
-    // require_once '../config/database.php';
-    // $stmt = pg_prepare($conn, "get_all_user_details", "SELECT * FROM usuarios WHERE id = $1");
-    // $result_refresh = pg_execute($conn, "get_all_user_details", array($sesion_user_id));
-    // if ($user_data_db = pg_fetch_assoc($result_refresh)) {
-    //     // Actualizar todas las $_SESSION y luego las variables $sesion_...
-    //     $_SESSION['user_name'] = $user_data_db['nombre_completo']; // y así para todas
-    //     // ... luego reasignar las $sesion_...
-    //     $sesion_nombre_completo = htmlspecialchars($_SESSION['user_name']); // etc.
-    // }
-    // $_SESSION['last_db_refresh'] = time();
-}
-if (!isset($_SESSION['last_db_refresh'])) {
-    $_SESSION['last_db_refresh'] = time();
-}
-*/
-
-// ---------------------------------------------------------------------
-// FIN DEL BLOQUE DE SESIÓN - EL RESTO DE TU PÁGINA PHP/HTML VA DESPUÉS
-// ---------------------------------------------------------------------
-
-// LAS LÍNEAS QUE CAUSABAN EL PARSE ERROR ANTERIORMENTE DEBEN SER ELIMINADAS O COMENTADAS CORRECTAMENTE.
-// ¡ESTAS LÍNEAS DE ABAJO SON SOLO UN RECORDATORIO PARA TI, NO CÓDIGO EJECUTABLE!
-/*
-// Ahora puedes usar las variables:
-// $sesion_user_id
-// $sesion_nombre_completo
-// $sesion_email_usuario
-// $sesion_rol_usuario
-// $sesion_foto_perfil_url
-// $sesion_acepta_terminos
-// $sesion_genero_usuario
-// $sesion_telefono_usuario
-// $sesion_fecha_nacimiento
-// $sesion_municipio_usuario
-// $sesion_fecha_registro
-// $sesion_cuenta_verificada
-*/
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -128,7 +84,9 @@ if (!isset($_SESSION['last_db_refresh'])) {
 
   <script>
     WebFont.load({
-      google: { families: ["Public Sans:300,400,500,600,700"] },
+      google: {
+        families: ["Public Sans:300,400,500,600,700"]
+      },
       custom: {
         families: [
           "Font Awesome 5 Solid",
@@ -138,7 +96,7 @@ if (!isset($_SESSION['last_db_refresh'])) {
         ],
         urls: ["assets/css/fonts.min.css"],
       },
-      active: function () {
+      active: function() {
         sessionStorage.fonts = true;
       },
     });
@@ -192,14 +150,11 @@ if (!isset($_SESSION['last_db_refresh'])) {
                     <?php echo $sesion_nombre_completo; ?>
                   </font>
                 </font>
-                </span>
-                <span class="user-level op-7">
-                  <font style="vertical-align: inherit">
-                    <font style="vertical-align: inherit">
-                      <?php echo $sesion_rol_usuario; ?>
-                    </font>
-                  </font>
-                </span>
+              </span>
+              <span class="user-level"
+                style="font-weight: bold; text-transform: uppercase; color: #c63e2f ; vertical-align: inherit;">
+                <?php echo $sesion_rol_usuario; ?>
+              </span>
             </div>
             <div class="row menubars border-top border-bottom text-center no-gutters px-4">
               <div class="col-4 border-right">
@@ -680,7 +635,7 @@ if (!isset($_SESSION['last_db_refresh'])) {
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-user animated fadeIn">
-                  <div class="dropdown-user-scroll scrollbar-outer">
+                  <div class="dropdown-user-scroll scrollbar-outer scroll-content" style="height: auto; margin-bottom: 0px; margin-right: 0px; max-height: 261.837px;">
                     <li>
                       <div class="user-box">
                         <div class="avatar-lg">
@@ -918,169 +873,354 @@ if (!isset($_SESSION['last_db_refresh'])) {
   <!-- jQuery Scrollbar -->
   <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
 
+  <!-- Moment JS (Requerido por Bootstrap DateTimePicker y potencialmente otros plugins) -->
+  <script src="assets/js/plugin/moment/moment.min.js"></script>
+  <script src="assets/js/plugin/moment/locales.min.js"></script> <!-- Opcional, para localización -->
+
+  <!-- Bootstrap DateTimePicker (DESPUÉS de jQuery y Moment) -->
+  <!-- Asegúrate que el archivo CSS para datetimepicker esté incluido en plugins.css o separado en el <head> -->
+  <script src="assets/js/plugin/datepicker/bootstrap-datetimepicker.min.js"></script>
+
   <!-- Chart JS -->
   <script src="assets/js/plugin/chart.js/chart.min.js"></script>
+  <!-- Owl Carousel -->
   <script src="assets/js/plugin/owl-carousel/owl.carousel.min.js"></script>
-
   <!-- jQuery Sparkline -->
   <script src="assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
-
   <!-- Chart Circle -->
   <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
-
   <!-- Datatables -->
   <script src="assets/js/plugin/datatables/datatables.min.js"></script>
-
   <!-- Bootstrap Notify -->
   <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
-
   <!-- jQuery Vector Maps -->
   <script src="assets/js/plugin/jsvectormap/jsvectormap.min.js"></script>
   <script src="assets/js/plugin/jsvectormap/world.js"></script>
-
   <!-- Sweet Alert -->
   <script src="assets/js/plugin/sweetalert/sweetalert.min.js"></script>
-
-  <!-- JS -->
-  <script src="assets/js/emprendeya-2.js"></script>
-  <script src="assets/js/setting-emprendeya.js"></script>
-  <script src="assets/js/emprendeya.js"></script>
+  <!-- Supabase (Cargado una sola vez) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Lottie Player (Cargado una sola vez) -->
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
-
-  <script src="backend-supabase/conection.js"></script>
-
-  <!-- FullCalendar JS -->
-
-  <script>
-    $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#177dff",
-      fillColor: "rgba(23, 125, 255, 0.14)",
-    });
-
-    $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#f3545d",
-      fillColor: "rgba(243, 84, 93, .14)",
-    });
-
-    $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#ffa534",
-      fillColor: "rgba(255, 165, 52, .14)",
-    });
-  </script>
-  <!-- Script para cargar dinámicamente el contenido @renderbody-->
+  <!-- Scripts del Tema EmprendeYa/Kaiadmin (DESPUÉS de todos los plugins) -->
+  <script src="assets/js/emprendeya-2.js"></script> <!-- O kaiadmin.min.js -->
+  <script src="assets/js/setting-emprendeya.js"></script> <!-- O settings.js del tema -->
+  <!-- <script src="assets/js/emprendeya.js"></script> --> <!-- Si es diferente y necesario -->
 
 
-  <script>
-    function cargarContenido(ruta) {
-      fetch(`${ruta}.php`)
-        .then((res) => {
-          if (!res.ok) throw new Error("No encontrado");
-          return res.text();
-        })
-        .then((html) => {
-          const render = document.getElementById("render-body");
-          render.innerHTML = html;
-          render.scrollTop = 0;
-          window.scrollTo(0, 0);
+  <!-- Script para cargar dinámicamente el contenido @renderbody -->
+ <!-- Script para cargar dinámicamente el contenido @renderbody -->
+<script>
+    let paginaActualCargada = null; // Para evitar recargar la misma página
+    let parametrosPaginaActual = null; // Para comparar si los parámetros también son los mismos
 
-          // Ejecutar cualquier función de inicialización disponible
-          if (
-            window[
-            `inicializar${ruta.charAt(0).toUpperCase() + ruta.slice(1)}`
-            ]
-          ) {
-            window[
-              `inicializar${ruta.charAt(0).toUpperCase() + ruta.slice(1)}`
-            ]();
-          }
+    function ejecutarScriptsEn(elementoPadre) {
+        const scripts = elementoPadre.querySelectorAll("script");
+        scripts.forEach((scriptViejo) => {
+            const scriptNuevo = document.createElement("script");
+            Array.from(scriptViejo.attributes).forEach(attr => scriptNuevo.setAttribute(attr.name, attr.value));
 
-          // Ejecutar scripts dentro del contenido cargado
-          ejecutarScriptsEn(render);
-        })
-        .catch((err) => {
-          document.getElementById("render-body").innerHTML = `
-      <div class="alert alert-warning mt-4">
-        <strong>Oops:</strong> No se pudo cargar <code>${ruta}.php</code>
-      </div>`;
+            if (scriptViejo.src) {
+                scriptNuevo.src = scriptViejo.src;
+                scriptNuevo.onload = () => console.log("Script externo (interno al HTML) cargado:", scriptViejo.src);
+                scriptNuevo.onerror = () => console.error("Error cargando script externo (interno al HTML):", scriptViejo.src);
+            } else {
+                scriptNuevo.textContent = scriptViejo.textContent;
+            }
+
+            scriptViejo.parentNode.replaceChild(scriptNuevo, scriptViejo);
+            if (!scriptViejo.src) console.log("Script inline (interno al HTML) ejecutado/re-evaluado.");
         });
     }
 
-    // Función para ejecutar scripts dentro de un elemento
-    function ejecutarScriptsEn(elemento) {
-      // Buscar todos los scripts dentro del elemento
-      const scripts = elemento.querySelectorAll("script");
-
-      scripts.forEach((scriptViejo) => {
-        const scriptNuevo = document.createElement("script");
-
-        // Copiar atributos (src, tipo, etc.)
-        Array.from(scriptViejo.attributes).forEach((attr) => {
-          scriptNuevo.setAttribute(attr.name, attr.value);
+    function reinicializarComponentesGlobalesUI(contextoElemento) {
+        console.log("(Re)inicializando componentes globales UI en:", contextoElemento);
+        // Tooltips
+        const tooltipTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            if (!bootstrap.Tooltip.getInstance(tooltipTriggerEl)) {
+                console.log("Inicializando tooltip para:", tooltipTriggerEl);
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            }
+            return bootstrap.Tooltip.getInstance(tooltipTriggerEl);
         });
-
-        // Copiar contenido del script
-        scriptNuevo.textContent = scriptViejo.textContent;
-
-        // Reemplazar el script viejo con el nuevo
-        scriptViejo.parentNode.replaceChild(scriptNuevo, scriptViejo);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const paginaInicial =
-        new URLSearchParams(window.location.search).get("page") || "home";
-      cargarContenido(paginaInicial);
-
-      document.addEventListener("click", function (e) {
-        const target = e.target.closest(".menu-link");
-        if (target) {
-          e.preventDefault();
-          const ruta = target.getAttribute("data-page");
-          cargarContenido(ruta);
-          history.pushState(null, "", `?page=${ruta}`);
+        // Popovers
+        const popoverTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="popover"]'));
+        popoverTriggerList.map(function(popoverTriggerEl) {
+            if (!bootstrap.Popover.getInstance(popoverTriggerEl)) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            }
+            return bootstrap.Popover.getInstance(popoverTriggerEl);
+        });
+        // jQuery Scrollbar
+        if (typeof $.fn.scrollbar === 'function') {
+            $(contextoElemento).find('.scrollbar-inner').not('.scroll-wrapper').scrollbar();
+            console.log("Scrollbars (re)inicializados si es necesario.");
+        } else {
+            console.warn("jQuery Scrollbar no está disponible ($.fn.scrollbar no es una función).");
         }
-      });
-    });
-  </script>
-
-  <script>
-    function cargarModal(event) {
-      // Prevenir la navegación predeterminada
-      event.preventDefault();
-
-      // Mostrar el modal si ya existe en el DOM
-      if (document.getElementById('calendarioModal')) {
-        var modal = new bootstrap.Modal(document.getElementById('calendarioModal'));
-        modal.show();
-      } else {
-        // Si el modal no existe en el DOM, cargarlo desde otro archivo e insertarlo
-        fetch('ruta/a/tu/modal-calendario.php')
-          .then(response => response.text())
-          .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            // Mostrar el modal una vez cargado
-            var modal = new bootstrap.Modal(document.getElementById('calendarioModal'));
-            modal.show();
-          })
-          .catch(error => {
-            console.error('Error al cargar el modal:', error);
-          });
-      }
+        console.log("Componentes globales UI (re)inicializados.");
     }
-  </script>
+
+    function cargarContenido(rutaPaginaCompleta) { // ej: "public-profile&user_id_view=123" o "home"
+        console.log(`INDEX.PHP: Solicitando carga de contenido para: ${rutaPaginaCompleta}`);
+
+        let baseRuta = rutaPaginaCompleta;
+        let queryString = "";
+        
+        // Separar la ruta base de los parámetros
+        // Buscamos el primer '&' o '?' para separar la ruta base de los parámetros
+        const separadorParamsIndex = rutaPaginaCompleta.search(/[?&]/);
+
+
+        if (separadorParamsIndex !== -1) {
+            baseRuta = rutaPaginaCompleta.substring(0, separadorParamsIndex);
+            queryString = rutaPaginaCompleta.substring(separadorParamsIndex + 1); // user_id_view=123
+            // Si el separador era '?', lo mantenemos, si era '&', lo cambiamos por '?' para la URL
+            if (rutaPaginaCompleta[separadorParamsIndex] === '&') {
+                queryString = `?${queryString}`;
+            } else {
+                 queryString = `?${queryString}`; // Ya incluye el '?'
+            }
+        } else {
+            // No hay parámetros, baseRuta es la ruta completa
+            baseRuta = rutaPaginaCompleta;
+            queryString = ""; // No hay query string
+        }
+        
+        // Comprobamos si la página y sus parámetros ya están cargados
+        if (paginaActualCargada === baseRuta && parametrosPaginaActual === queryString) {
+            console.log(`INDEX.PHP: La página ${baseRuta} con parámetros '${queryString}' ya está cargada. No se recarga.`);
+            window.scrollTo(0, 0);
+            return; 
+        }
+
+        const renderTarget = document.getElementById("render-body");
+        if (!renderTarget) {
+            console.error("INDEX.PHP: Elemento #render-body no encontrado. No se puede cargar contenido.");
+            return;
+        }
+
+        renderTarget.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div></div>';
+        
+        // Construir la URL final para el fetch
+        const fetchUrl = `${baseRuta}.php${queryString}`;
+        console.log("INDEX.PHP: Fetch URL construida:", fetchUrl);
+
+        fetch(fetchUrl)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Error HTTP ${response.status} al cargar ${fetchUrl}`);
+                }
+                return response.text();
+            })
+            .then((html) => {
+                renderTarget.innerHTML = html;
+                paginaActualCargada = baseRuta; // Guardar la ruta base
+                parametrosPaginaActual = queryString; // Guardar los parámetros
+
+                ejecutarScriptsEn(renderTarget);
+                reinicializarComponentesGlobalesUI(renderTarget);
+
+                if (typeof window.inicializarPaginaActual === 'function') {
+                    console.log(`INDEX.PHP: Llamando a window.inicializarPaginaActual() para ${baseRuta}`);
+                    try {
+                        window.inicializarPaginaActual();
+                    } catch (e) {
+                        console.error(`INDEX.PHP: Error al ejecutar inicializarPaginaActual() para ${baseRuta}:`, e);
+                    }
+                } else {
+                    console.log(`INDEX.PHP: No se encontró window.inicializarPaginaActual() para ${baseRuta}.`);
+                }
+
+                window.scrollTo(0, 0);
+                console.log(`INDEX.PHP: Carga de contenido para ${fetchUrl} completada.`);
+            })
+            .catch((error) => {
+                console.error("INDEX.PHP: Error detallado al cargar contenido:", error);
+                renderTarget.innerHTML = `
+                    <div class="page-inner mt--5">
+                        <div class="row mt--2"><div class="col-md-12"><div class="card full-height">
+                        <div class="card-body text-center">
+                            <div class="card-title h2 text-danger">Oops! Algo salió mal.</div>
+                            <div class="card-category">No se pudo cargar: <code>${baseRuta}.php</code></div>
+                            <p class="mt-3"><strong>Detalle:</strong> ${error.message}</p>
+                            <a href="index.php" class="btn btn-primary btn-round mt-3">Volver al Inicio</a>
+                        </div></div></div></div>
+                    </div>`;
+                paginaActualCargada = null; 
+                parametrosPaginaActual = null;
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("INDEX.PHP: DOM completamente cargado y parseado.");
+        reinicializarComponentesGlobalesUI(document.body);
+
+        // Obtener la página de la URL (puede incluir parámetros)
+        const params = new URLSearchParams(window.location.search);
+        let paginaInicial = params.get("page") || "home"; // "home" o "public-profile&user_id_view=123"
+
+        // Si 'page' tiene parámetros, necesitamos mantenerlos.
+        // URLSearchParams ya nos da el valor completo de 'page'.
+        // Ejemplo: si la URL es ?page=public-profile&user_id_view=123
+        // params.get("page") devolverá "public-profile" si 'user_id_view' es otro param.
+        // Si queremos que ?page=micontenido&id=123 sea interpretado, page debe ser "micontenido&id=123"
+        // El enfoque actual de que data-page="public-profile&user_id_view=123" es mejor.
+
+        // Para la carga inicial, si la URL es index.php?page=public-profile&user_id_view=123,
+        // params.get("page") solo nos dará "public-profile". Necesitamos reconstruir
+        // la cadena de query si hay más parámetros relevantes para la página.
+        // Sin embargo, la lógica actual de history.pushState y popstate usa el valor completo de data-page.
+        
+        // Simplificación: Asumimos que la lógica de data-page="ruta¶m=valor" es la principal.
+        // Para la carga inicial desde la URL, si es ?page=nombrepagina¶m1=valor1,
+        // la función cargarContenido lo parseará correctamente si le pasamos el string completo.
+        let paginaInicialCompleta = paginaInicial; // Por defecto, el valor de 'page'
+
+        // Si hay otros parámetros en la URL que no son 'page' y que queremos pasar a la página inicial
+        // (esto es más complejo y depende de cómo quieras que funcione tu enrutamiento inicial)
+        // Por ahora, nos enfocamos en que el valor de "page" pueda ser "ruta¶ms"
+        
+        // Ejemplo: si la URL es index.php?page=public-profile&user_id_view=789
+        // params.get("page") solo es "public-profile"
+        // Tendrías que reconstruir el string de query si es necesario para la carga INICIAL.
+        // Pero para la navegación con data-page="public-profile&user_id_view=789" ya funciona.
+
+        // Para la carga inicial, si la URL es ?page=public-profile&user_id_view=123
+        // params.get("page") devolverá "public-profile".
+        // Necesitamos reconstruir si 'user_id_view' es un parámetro separado en la URL inicial.
+        // Si la URL es ?page=public-profile&user_id_view=123
+        // params.get("page") es 'public-profile'
+        // params.get("user_id_view") es '123'
+        
+        // Reconstruir la cadena de 'data-page' para la carga inicial si es necesario:
+        let paginaParaCargar = params.get("page") || "home";
+        let parametrosAdicionales = [];
+        for (const [key, value] of params.entries()) {
+            if (key !== "page") {
+                parametrosAdicionales.push(`${key}=${value}`);
+            }
+        }
+        if (parametrosAdicionales.length > 0) {
+            paginaParaCargar += (paginaParaCargar.includes('&') || paginaParaCargar.includes('?') ? '&' : (paginaParaCargar.includes('?') ? '' : (baseRuta.includes('/') ? '&' : '?'))) + parametrosAdicionales.join('&');
+             // Esta lógica de concatenación de '&' vs '?' puede ser compleja.
+             // Simplificamos asumiendo que page puede ser "public-profile" y los otros params son adicionales.
+             // Si page ya es "public-profile&id=x", entonces params.get("page") es solo "public-profile" si hay un & en la URL original
+             // Lo más robusto es que data-page contenga todo.
+        }
+        // La forma más simple y robusta para la carga inicial basada en la URL es:
+        // 1. Obtener el valor del parámetro 'page' (ej. 'public-profile')
+        // 2. Reconstruir el resto del query string de la URL actual.
+        // Esto asume que tu PHP (public-profile.php) leerá de $_GET.
+
+        let url = new URL(window.location.href);
+        let paginaDeUrl = url.searchParams.get("page") || "home";
+        let queryParamsIniciales = [];
+        url.searchParams.forEach((value, key) => {
+            if (key !== "page") {
+                queryParamsIniciales.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+            }
+        });
+
+        let cadenaRutaInicial = paginaDeUrl;
+        if (queryParamsIniciales.length > 0) {
+             // Determinar si la páginaDeUrl ya es un path o solo un nombre de archivo
+            if (paginaDeUrl.includes('/')) { // Es probable un path, añadir ?
+                 cadenaRutaInicial += "?" + queryParamsIniciales.join("&");
+            } else { // Es un nombre de archivo, añadir & si ya hay params o ? si no.
+                     // Esto es lo que estamos tratando de simplificar.
+                     // La clave es que `data-page` contenga todo.
+                     // Para la URL inicial, `paginaDeUrl` es el nombre base.
+                     cadenaRutaInicial += (cadenaRutaInicial.includes('?') ? '&' : '?') + queryParamsIniciales.join("&");
+                     // REVISAR: Si la paginaDeUrl es "public-profile" y los params son "user_id_view=123"
+                     // debería ser "public-profile&user_id_view=123" para que nuestro parser funcione.
+                     // El `&` vs `?` inicial es el truco.
+                     // Si el primer parámetro se une con '&' y no con '?', el parseo de `cargarContenido` lo tomará como parte de la ruta base.
+                     // La lógica de `data-page` es más controlada.
+                     // Para la URL, si es `index.php?page=public-profile&user_id_view=123`,
+                     // entonces `paginaDeUrl` es `public-profile`.
+                     // `queryParamsIniciales` es `['user_id_view=123']`.
+                     // Necesitamos que `cadenaRutaInicial` sea `public-profile&user_id_view=123`
+                     // para que `cargarContenido` lo procese bien.
+                     cadenaRutaInicial = paginaDeUrl + (queryParamsIniciales.length > 0 ? "&" + queryParamsIniciales.join("&") : "");
+
+            }
+        }
+        
+
+        console.log("INDEX.PHP: Cargando página inicial (construida desde URL):", cadenaRutaInicial);
+        cargarContenido(cadenaRutaInicial);
+
+        document.body.addEventListener("click", function(e) {
+            const linkElement = e.target.closest(".menu-link[data-page]");
+            if (linkElement) {
+                e.preventDefault();
+                const rutaCompletaAttr = linkElement.getAttribute("data-page"); // ej: "public-profile&user_id_view=123"
+                if (rutaCompletaAttr && rutaCompletaAttr.trim() !== "" && rutaCompletaAttr.trim() !== "#") {
+                    console.log("INDEX.PHP: Clic en menu-link, cargando ruta desde data-page:", rutaCompletaAttr);
+                    cargarContenido(rutaCompletaAttr);
+                    
+                    // Actualizar URL para reflejar la página y sus parámetros específicos
+                    // Necesitamos separar la ruta base de los parámetros para construir bien el query string
+                    let nuevaRutaBase = rutaCompletaAttr;
+                    let nuevosQueryParams = new URLSearchParams(); // Usar URLSearchParams para construir bien
+
+                    const primerSeparador = rutaCompletaAttr.indexOf('&'); // O '?'
+                    if (primerSeparador !== -1) {
+                        nuevaRutaBase = rutaCompletaAttr.substring(0, primerSeparador);
+                        const paramsStr = rutaCompletaAttr.substring(primerSeparador + 1);
+                        // Parsear los parámetros manualmente si vienen como "key1=val1&key2=val2"
+                        const paramsArray = paramsStr.split('&');
+                        paramsArray.forEach(param => {
+                            const [key, value] = param.split('=');
+                            if (key && value !== undefined) {
+                                nuevosQueryParams.set(key, value);
+                            }
+                        });
+                    }
+                    
+                    const nuevaUrlObj = new URL(window.location.origin + window.location.pathname); // URL base sin query
+                    nuevaUrlObj.searchParams.set('page', nuevaRutaBase);
+                    nuevosQueryParams.forEach((value, key) => {
+                        nuevaUrlObj.searchParams.set(key, value);
+                    });
+
+                    history.pushState({ page: rutaCompletaAttr }, "", nuevaUrlObj.toString());
+
+                } else {
+                    console.warn("INDEX.PHP: Clic en menu-link sin data-page válido o con '#':", linkElement);
+                }
+            }
+        });
+
+        window.addEventListener('popstate', function(event) {
+            let paginaAHistorial = "home"; // Default
+            if (event.state && event.state.page) {
+                paginaAHistorial = event.state.page; // Esto ya debería tener la ruta completa con params
+            } else {
+                // Reconstruir desde la URL actual si no hay estado (caso borde)
+                const urlPop = new URL(window.location.href);
+                let paginaBasePop = urlPop.searchParams.get("page") || "home";
+                let paramsPop = [];
+                urlPop.searchParams.forEach((value, key) => {
+                    if (key !== "page") {
+                        paramsPop.push(`${key}=${value}`);
+                    }
+                });
+                paginaAHistorial = paginaBasePop + (paramsPop.length > 0 ? "&" + paramsPop.join("&") : "");
+            }
+            console.log("INDEX.PHP: Evento popstate, cargando página:", paginaAHistorial);
+            cargarContenido(paginaAHistorial);
+        });
+    });
+
+    function cargarModal(event) {
+        event.preventDefault();
+        console.log("Función cargarModal llamada.");
+    }
+</script>
 </body>
 
 </html>

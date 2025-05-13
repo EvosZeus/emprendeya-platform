@@ -1,6 +1,21 @@
+--CREDENCIALES
+ --ADMIN
+ emprendeya.soporte@gmail.com --PASSWORD B39840592*
+
+ --EMPRENDEDORES
+ hello@example.com --PASSWORD 123
+ d@gmail.com --PASSWORD 123
+ p@gmail.com --PASSWORD 123
+--FIN CREDENCIALES
+
+
+
 -- (Opcional pero recomendado) Crear tipos ENUM para campos con valores predefinidos
 CREATE TYPE tipo_genero AS ENUM ('Masculino', 'Femenino', 'Otro', 'Prefiero no decirlo');
 CREATE TYPE tipo_rol_usuario AS ENUM ('Emprendedor', 'Inversor');
+ALTER TYPE tipo_rol_usuario 
+ADD VALUE 'Administrador';
+
 
 -- Tabla de Usuarios
 CREATE TABLE usuarios (
@@ -67,7 +82,194 @@ CREATE INDEX idx_usuarios_rol ON usuarios(rol);
 
 
 
+<!-- Script para cargar dinámicamente el contenido @renderbody -->
+  <script>
+    let paginaActualCargada = null; // Para evitar recargar la misma página
 
+    function ejecutarScriptsEn(elementoPadre) {
+      const scripts = elementoPadre.querySelectorAll("script");
+      scripts.forEach((scriptViejo) => {
+        const scriptNuevo = document.createElement("script");
+        // Copiar atributos (importante para type="module", async, defer, etc.)
+        Array.from(scriptViejo.attributes).forEach(attr => scriptNuevo.setAttribute(attr.name, attr.value));
+
+        if (scriptViejo.src) {
+          // Para scripts externos, clonar y reemplazar puede forzar la recarga si es necesario,
+          // o simplemente permitir que el navegador maneje el cacheo.
+          // La clave es que se adjunta al DOM donde el navegador lo "ve".
+          scriptNuevo.src = scriptViejo.src; // Asignar src ANTES de appendChild
+          scriptNuevo.onload = () => console.log("Script externo (interno al HTML) cargado:", scriptViejo.src);
+          scriptNuevo.onerror = () => console.error("Error cargando script externo (interno al HTML):", scriptViejo.src);
+        } else {
+          // Para scripts inline
+          scriptNuevo.textContent = scriptViejo.textContent;
+        }
+
+        scriptViejo.parentNode.replaceChild(scriptNuevo, scriptViejo);
+        if (!scriptViejo.src) console.log("Script inline (interno al HTML) ejecutado/re-evaluado.");
+      });
+    }
+
+    function reinicializarComponentesGlobalesUI(contextoElemento) {
+      console.log("(Re)inicializando componentes globales UI en:", contextoElemento);
+
+      // Tooltips
+      const tooltipTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function(tooltipTriggerEl) {
+        if (!bootstrap.Tooltip.getInstance(tooltipTriggerEl)) {
+          console.log("Inicializando tooltip para:", tooltipTriggerEl);
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        }
+        return bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+      });
+
+      // Popovers
+      const popoverTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="popover"]'));
+      popoverTriggerList.map(function(popoverTriggerEl) {
+        if (!bootstrap.Popover.getInstance(popoverTriggerEl)) {
+          return new bootstrap.Popover(popoverTriggerEl);
+        }
+        return bootstrap.Popover.getInstance(popoverTriggerEl);
+      });
+
+      // jQuery Scrollbar
+      if (typeof $.fn.scrollbar === 'function') {
+        $(contextoElemento).find('.scrollbar-inner').not('.scroll-wrapper').scrollbar();
+        console.log("Scrollbars (re)inicializados si es necesario.");
+      } else {
+        console.warn("jQuery Scrollbar no está disponible ($.fn.scrollbar no es una función).");
+      }
+
+      // Kaiadmin/EmprendeYa Theme specific initializations
+      // Esto es muy dependiente del tema. Puede que tengan una función global para re-inicializar.
+      // Ejemplo: if (typeof Kai !== 'undefined' && Kai.init) Kai.init();
+      // O puede que necesites llamar a inicializadores de componentes específicos.
+      // if (typeof Circles !== 'undefined' && typeof Circles.create === 'function') {
+      //    $(contextoElemento).find('.circles-chart').each(function(){
+      //        if(!$(this).data('processed-circle')) { // Evitar duplicados
+      //            Circles.create({ id: this.id, /* ...más opciones... */ });
+      //            $(this).data('processed-circle', true);
+      //        }
+      //    });
+      // }
+      console.log("Componentes globales UI (re)inicializados.");
+    }
+
+    function cargarContenido(rutaPagina) {
+      console.log(`Solicitando carga de contenido para: ${rutaPagina}.php`);
+
+      if (paginaActualCargada === rutaPagina) {
+        console.log(`La página ${rutaPagina} ya está cargada. No se recarga.`);
+        // Podrías hacer scroll al top o alguna otra acción si lo deseas.
+        window.scrollTo(0, 0);
+        return; // Evita la recarga
+      }
+
+      const renderTarget = document.getElementById("render-body");
+      if (!renderTarget) {
+        console.error("Elemento #render-body no encontrado. No se puede cargar contenido.");
+        return;
+      }
+
+      renderTarget.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div></div>';
+
+      fetch(`${rutaPagina}.php`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status} al cargar ${rutaPagina}.php`);
+          }
+          return response.text();
+        })
+        .then((html) => {
+          renderTarget.innerHTML = html;
+          paginaActualCargada = rutaPagina; // Marcar página como cargada
+
+          ejecutarScriptsEn(renderTarget); // Ejecutar scripts <script> DENTRO del HTML cargado
+          reinicializarComponentesGlobalesUI(renderTarget); // Re-inicializar tooltips, popovers, scrollbars, etc. en el nuevo contenido
+
+          // Llamar a la función de inicialización específica de la página si existe
+          if (typeof window.inicializarPaginaActual === 'function') {
+            console.log(`Llamando a window.inicializarPaginaActual() para ${rutaPagina}`);
+            try {
+              window.inicializarPaginaActual();
+            } catch (e) {
+              console.error(`Error al ejecutar inicializarPaginaActual() para ${rutaPagina}:`, e);
+            }
+          } else {
+            console.log(`No se encontró window.inicializarPaginaActual() para ${rutaPagina}.`);
+          }
+
+          window.scrollTo(0, 0); // Scroll al inicio de la página
+          console.log(`Carga de contenido para ${rutaPagina}.php completada.`);
+        })
+        .catch((error) => {
+          console.error("Error detallado al cargar contenido:", error);
+          renderTarget.innerHTML = `
+                    <div class="page-inner mt--5">
+                        <div class="row mt--2"><div class="col-md-12"><div class="card full-height">
+                        <div class="card-body text-center">
+                            <div class="card-title h2 text-danger">Oops! Algo salió mal.</div>
+                            <div class="card-category">No se pudo cargar: <code>${rutaPagina}.php</code></div>
+                            <p class="mt-3"><strong>Detalle:</strong> ${error.message}</p>
+                            <a href="index.php" class="btn btn-primary btn-round mt-3">Volver al Inicio</a>
+                        </div></div></div></div>
+                    </div>`;
+          paginaActualCargada = null; // Resetear página actual en caso de error
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("INDEX.PHP: DOM completamente cargado y parseado.");
+
+      // Reinicializar componentes globales en el contenido estático inicial de index.php
+      reinicializarComponentesGlobalesUI(document.body);
+
+      const params = new URLSearchParams(window.location.search);
+      const paginaInicial = params.get("page") || "home";
+
+      console.log("INDEX.PHP: Cargando página inicial:", paginaInicial);
+      cargarContenido(paginaInicial);
+
+      document.body.addEventListener("click", function(e) { // Delegación de eventos en document.body
+        const linkElement = e.target.closest(".menu-link[data-page]");
+        if (linkElement) {
+          e.preventDefault();
+          const ruta = linkElement.getAttribute("data-page");
+          if (ruta && ruta.trim() !== "" && ruta.trim() !== "#") {
+            console.log("INDEX.PHP: Clic en menu-link, cargando ruta:", ruta);
+            cargarContenido(ruta);
+
+            const nuevaUrl = new URL(window.location.href);
+            nuevaUrl.searchParams.set('page', ruta);
+            history.pushState({
+              page: ruta
+            }, "", nuevaUrl.toString());
+          } else {
+            console.warn("INDEX.PHP: Clic en menu-link sin data-page válido o con '#':", linkElement);
+          }
+        }
+      });
+
+      window.addEventListener('popstate', function(event) {
+        let pagina = "home";
+        if (event.state && event.state.page) {
+          pagina = event.state.page;
+        } else {
+          const paramsPop = new URLSearchParams(window.location.search);
+          pagina = paramsPop.get('page') || "home";
+        }
+        console.log("INDEX.PHP: Evento popstate, cargando página:", pagina);
+        cargarContenido(pagina);
+      });
+    });
+
+    // Función para cargar modal (ejemplo, no directamente relacionada con la carga principal)
+    function cargarModal(event) {
+      event.preventDefault();
+      // ... (tu lógica para cargar o mostrar un modal) ...
+      console.log("Función cargarModal llamada.");
+    }
+  </script>
 
 
 

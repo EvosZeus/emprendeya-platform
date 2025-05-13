@@ -1,8 +1,16 @@
 <?php
-session_start();
+// ---------------------------------------------------------------------
+// BLOQUE DE INICIO, VERIFICACIÓN DE SESIÓN Y RECUPERACIÓN COMPLETA DE DATOS DEL USUARIO
+// (Basado en la tabla 'usuarios' y lo guardado en $_SESSION durante el login)
+// ---------------------------------------------------------------------
+
+if (session_status() == PHP_SESSION_NONE) {
+  session_start();
+}
+
 if (!isset($_SESSION['user_id'])) {
-    header("Location: session/sign-in.html");
-    exit();
+  header('Location: landing.html');
+  exit;
 }
 ?>
 <div id="carouselExampleCaptions" class="carousel slide compact-carousel">
@@ -72,7 +80,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
     </div>
-     <!-- Marcadores Pagina  -->
+    <!-- Marcadores Pagina  -->
     <div class="row">
       <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-primary card-round">
@@ -422,349 +430,34 @@ if (!isset($_SESSION['user_id'])) {
       </div>
     </div>
 
-    <!-- Emprendedores -->
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title text-secondary">
-            <font style="vertical-align: inherit">
-              <font style="vertical-align: inherit">Nuestros Emprendedores</font>
-            </font>
-          </h4>
-        </div>
-        <div class="card-body">
-          <div id="owl-demo" class="owl-carousel owl-theme owl-img-responsive owl-loaded owl-drag">
-            <div class="owl-stage-outer">
-              <div class="owl-stage" style="
-                  transform: translate3d(-1154px, 0px, 0px);
-                  transition: 0.25s;
-                  width: 3078px;
-                ">
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item active" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item active" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item active" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-                <div class="owl-item cloned" style="width: 182.354px; margin-right: 10px">
-                  <div class="card" style="width: 18rem;">
-                    <img src="assets/img/examples/product3.jpg" class="card-img-top" alt="...">
-                    <div class="card-body">
-                      <h5 class="card-title">Carlos Lopez</h5>
-
-                      <div class="d-flex justify-content-between mt-3">
-                        <!-- Botón de correo -->
-                        <a href="mailto:correo@ejemplo.com" class="btn btn-outline-primary btn-round">
-                          <i class="bi bi-envelope-fill"></i>
-                        </a>
-
-                        <!-- Botón de ver perfil -->
-                        <a href="" class="btn btn-secondary btn-round">
-                          Ver perfil
-                        </a>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
+    <!-- Sección de Emprendedores -->
+    <div class="row mt-4"> <!-- Añadí un row para mejor espaciado si es necesario -->
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title text-black">
+              Nuestros Emprendedores
+            </h4>
+          </div>
+          <div class="card-body">
+            <!-- El ID 'emprendedores-carousel' es el que usaremos para inicializar Owl Carousel -->
+            <div id="emprendedores-carousel" class="owl-carousel owl-theme">
+              <!-- Los items del carrusel se añadirán aquí por JavaScript -->
             </div>
-
+            <div id="loading-emprendedores" class="text-center py-4" style="display:none;">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Cargando emprendedores...</span>
+              </div>
+              <p class="mt-2">Cargando emprendedores...</p>
+            </div>
+            <div id="error-emprendedores" class="text-center text-danger py-4" style="display:none;">
+              <!-- El mensaje de error se establecerá por JS -->
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-
+    <!-- Fin Sección de Emprendedores -->
 
     <div class="row">
       <div class="col-md-12">
@@ -1398,7 +1091,7 @@ if (!isset($_SESSION['user_id'])) {
 <!-- Vendor End -->
 
 <script>
-  $(document).ready(function () {
+  $(document).ready(function() {
     $("#owl-demo").owlCarousel({
       loop: true,
       margin: 10,
@@ -1442,4 +1135,127 @@ if (!isset($_SESSION['user_id'])) {
       items: 4,
     });
   });
+</script>
+<script>
+  function inicializarPaginaActual() {
+    console.log("HOME.PHP: inicializarPaginaActual() ejecutada.");
+
+    // Función showAlert (si la necesitas en esta página específicamente)
+    // Si ya está global en index.php, no necesitas redefinirla.
+    // function showAlert(type, title, message) { /* ... tu función showAlert ... */ }
+
+    function cargarEmprendedoresCarousel() {
+      const $carouselContainer = $('#emprendedores-carousel');
+      const $loadingIndicator = $('#loading-emprendedores');
+      const $errorIndicator = $('#error-emprendedores');
+
+      if (!$carouselContainer.length) {
+        console.error("HOME.PHP: Contenedor del carrusel #emprendedores-carousel no encontrado.");
+        return;
+      }
+
+      $loadingIndicator.show();
+      $errorIndicator.hide();
+      // Si Owl Carousel ya fue inicializado y quieres recargar datos, destrúyelo primero
+      if ($carouselContainer.hasClass('owl-loaded')) {
+        console.log("HOME.PHP: Destruyendo instancia previa de Owl Carousel.");
+        $carouselContainer.trigger('destroy.owl.carousel').removeClass('owl-loaded owl-hidden'); // Quitar owl-hidden también
+        $carouselContainer.html(''); // Limpiar items
+      } else {
+        $carouselContainer.html(''); // Limpiar por si acaso
+      }
+
+
+      $.ajax({
+        url: 'backend-php/get_emprendedores.php', // Ruta a tu script PHP
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+          $loadingIndicator.hide();
+          if (response.success && response.data && response.data.length > 0) {
+            console.log("HOME.PHP: Emprendedores recibidos:", response.data.length);
+            let itemsHtml = '';
+            response.data.forEach(function(emprendedor) {
+              const fotoUrl = emprendedor.foto_perfil_url || 'assets/img/profile-signin.jpg';
+              const nombre = emprendedor.nombre_completo || 'Emprendedor Anónimo';
+              const municipio = emprendedor.municipio || ''; // Dejar vacío si no hay
+              const telefono = emprendedor.telefono || ''; // Dejar vacío si no hay
+
+              // Decide cómo vas a manejar el enlace al perfil.
+              // Opción 1: Enlace directo que recarga la página (si profile.php es una página separada no cargada por AJAX)
+              // const perfilUrl = `index.php?page=profile&user_id_view=${emprendedor.id}`; 
+              // (Usa un nombre de param diferente a 'id' si 'id' se usa para el usuario actual)
+
+              // Opción 2: Usando el sistema menu-link para cargar perfil via AJAX
+              // (Necesitas una página 'public-profile.php' o similar que maneje 'user_id_view')
+              const dataPageAttribute = `public-profile&user_id_view=${emprendedor.id}`;
+
+              itemsHtml += `
+                            <div class="item">
+                                <div class="card card-profile-emprendedor mx-auto" style="width: 230px; margin-bottom: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"> 
+                                    <img src="${fotoUrl}" class="card-img-top" alt="Foto de ${nombre}" style="height: 220px; object-fit: cover; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                    <div class="card-body text-center p-3">
+                                        <h5 class="card-title mb-1" style="font-size: 1.05rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nombre}">${nombre}</h5>
+                                        ${municipio ? `<p class="card-text text-muted small mb-0" style="font-size: 0.8rem;"><i class="fas fa-map-marker-alt fa-sm text-primary"></i> ${municipio}</p>` : ''}
+                                        ${telefono ? `<p class="card-text text-muted small" style="font-size: 0.8rem;"><i class="fas fa-phone fa-sm text-primary"></i> ${telefono}</p>` : ''}
+                                        <a href="#" class="btn btn-primary btn-round btn-sm mt-2 menu-link" data-page="${dataPageAttribute}">Ver Perfil</a>
+                                    </div>
+                                </div>
+                            </div>`;
+            });
+            $carouselContainer.html(itemsHtml);
+
+            $carouselContainer.owlCarousel({
+              loop: response.data.length > 4, // Activa el loop solo si hay más de 4 items (ajusta)
+              margin: 20,
+              nav: true,
+              dots: true, // A menudo se prefieren dots para este tipo de carrusel
+              autoplay: true,
+              autoplayTimeout: 4000,
+              autoplayHoverPause: true,
+              navText: ["<i class='fas fa-chevron-left p-2 bg-white text-primary rounded-circle shadow-sm'></i>", "<i class='fas fa-chevron-right p-2 bg-white text-primary rounded-circle shadow-sm'></i>"],
+              responsive: {
+                0: {
+                  items: 1,
+                  stagePadding: 30
+                }, // Mostrar parte del siguiente y anterior en móviles
+                576: {
+                  items: 2,
+                  stagePadding: 20
+                }, // Móviles grandes
+                768: {
+                  items: 3,
+                  stagePadding: 10
+                }, // Tablets
+                992: {
+                  items: 4
+                }, // Desktops pequeños
+                1200: {
+                  items: 5
+                } // Desktops grandes
+              }
+            });
+            console.log("HOME.PHP: Owl Carousel para emprendedores inicializado/actualizado.");
+
+          } else if (response.data && response.data.length === 0) {
+            console.log("HOME.PHP: No hay emprendedores para mostrar.");
+            $carouselContainer.html('<div class="col-12 text-center py-5"><p class="lead">Aún no tenemos emprendedores destacados. ¡Sé el primero!</p></div>');
+          } else {
+            console.error("HOME.PHP: Error al cargar emprendedores:", response.message);
+            $errorIndicator.text(response.message || 'No se pudieron cargar los emprendedores. Intenta de nuevo más tarde.').show();
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          $loadingIndicator.hide();
+          $errorIndicator.text('Error de conexión al cargar emprendedores. Revisa tu conexión a internet.').show();
+          console.error("HOME.PHP: Error AJAX al cargar emprendedores:", textStatus, errorThrown, jqXHR.responseText);
+        }
+      });
+    }
+
+    // Llamar a la función para cargar los emprendedores cuando se inicializa la página de inicio
+    cargarEmprendedoresCarousel();
+
+    console.log("HOME.PHP: Fin de inicializarPaginaActual().");
+  }
 </script>
