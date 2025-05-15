@@ -9,7 +9,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['user_id'])) {
-  header('Location: landing.html'); 
+  header('Location: landing.html');
   exit;
 }
 
@@ -264,30 +264,9 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
                   </li>
 
                   <li>
-                    <a href="" class="menu-link" data-page="projects-tendencia">
-                      <i class="fas fa-fire me-2"></i>
-                      <span class="sub-item">En tendencia</span>
-                    </a>
-                  </li>
-
-                  <li>
                     <a href="" class="menu-link" data-page="projects-nuevos">
                       <i class="fas fa-clock me-2"></i>
                       <span class="sub-item">Nuevos</span>
-                    </a>
-                  </li>
-
-                  <li>
-                    <a href="" class="menu-link" data-page="project-exitosos">
-                      <i class="fas fa-trophy me-2"></i>
-                      <span class="sub-item">Exitosos</span>
-                    </a>
-                  </li>
-
-                  <li>
-                    <a href="" class="menu-link" data-page="project-categoria">
-                      <i class="fas fa-th-large me-2"></i>
-                      <span class="sub-item">Por categoría</span>
                     </a>
                   </li>
                 </ul>
@@ -875,7 +854,7 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
 
   <!-- Moment JS (Requerido por Bootstrap DateTimePicker y potencialmente otros plugins) -->
   <script src="assets/js/plugin/moment/moment.min.js"></script>
-  <script src="assets/js/plugin/moment/locales.min.js"></script> <!-- Opcional, para localización -->
+  
 
   <!-- Bootstrap DateTimePicker (DESPUÉS de jQuery y Moment) -->
   <!-- Asegúrate que el archivo CSS para datetimepicker esté incluido en plugins.css o separado en el <head> -->
@@ -902,6 +881,7 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Lottie Player (Cargado una sola vez) -->
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script src="assets/js/plugin/jquery.magnific-popup/jquery.magnific-popup.min.js"></script>
 
   <!-- Scripts del Tema EmprendeYa/Kaiadmin (DESPUÉS de todos los plugins) -->
   <script src="assets/js/emprendeya-2.js"></script> <!-- O kaiadmin.min.js -->
@@ -910,317 +890,372 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
 
 
   <!-- Script para cargar dinámicamente el contenido @renderbody -->
- <!-- Script para cargar dinámicamente el contenido @renderbody -->
-<script>
+  <!-- Script para cargar dinámicamente el contenido @renderbody -->
+  <script>
     let paginaActualCargada = null; // Para evitar recargar la misma página
     let parametrosPaginaActual = null; // Para comparar si los parámetros también son los mismos
 
     function ejecutarScriptsEn(elementoPadre) {
-        const scripts = elementoPadre.querySelectorAll("script");
-        scripts.forEach((scriptViejo) => {
-            const scriptNuevo = document.createElement("script");
-            Array.from(scriptViejo.attributes).forEach(attr => scriptNuevo.setAttribute(attr.name, attr.value));
+      const scripts = elementoPadre.querySelectorAll("script");
+      scripts.forEach((scriptViejo) => {
+        const scriptNuevo = document.createElement("script");
+        Array.from(scriptViejo.attributes).forEach(attr => scriptNuevo.setAttribute(attr.name, attr.value));
 
-            if (scriptViejo.src) {
-                scriptNuevo.src = scriptViejo.src;
-                scriptNuevo.onload = () => console.log("Script externo (interno al HTML) cargado:", scriptViejo.src);
-                scriptNuevo.onerror = () => console.error("Error cargando script externo (interno al HTML):", scriptViejo.src);
-            } else {
-                scriptNuevo.textContent = scriptViejo.textContent;
-            }
+        if (scriptViejo.src) {
+          scriptNuevo.src = scriptViejo.src;
+          scriptNuevo.onload = () => console.log("Script externo (interno al HTML) cargado:", scriptViejo.src);
+          scriptNuevo.onerror = () => console.error("Error cargando script externo (interno al HTML):", scriptViejo.src);
+        } else {
+          scriptNuevo.textContent = scriptViejo.textContent;
+        }
 
-            scriptViejo.parentNode.replaceChild(scriptNuevo, scriptViejo);
-            if (!scriptViejo.src) console.log("Script inline (interno al HTML) ejecutado/re-evaluado.");
-        });
+        scriptViejo.parentNode.replaceChild(scriptNuevo, scriptViejo);
+        if (!scriptViejo.src) console.log("Script inline (interno al HTML) ejecutado/re-evaluado.");
+      });
     }
 
     function reinicializarComponentesGlobalesUI(contextoElemento) {
-        console.log("(Re)inicializando componentes globales UI en:", contextoElemento);
-        // Tooltips
-        const tooltipTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function(tooltipTriggerEl) {
-            if (!bootstrap.Tooltip.getInstance(tooltipTriggerEl)) {
-                console.log("Inicializando tooltip para:", tooltipTriggerEl);
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            }
-            return bootstrap.Tooltip.getInstance(tooltipTriggerEl);
-        });
-        // Popovers
-        const popoverTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="popover"]'));
-        popoverTriggerList.map(function(popoverTriggerEl) {
-            if (!bootstrap.Popover.getInstance(popoverTriggerEl)) {
-                return new bootstrap.Popover(popoverTriggerEl);
-            }
-            return bootstrap.Popover.getInstance(popoverTriggerEl);
-        });
-        // jQuery Scrollbar
-        if (typeof $.fn.scrollbar === 'function') {
-            $(contextoElemento).find('.scrollbar-inner').not('.scroll-wrapper').scrollbar();
-            console.log("Scrollbars (re)inicializados si es necesario.");
-        } else {
-            console.warn("jQuery Scrollbar no está disponible ($.fn.scrollbar no es una función).");
+      console.log("(Re)inicializando componentes globales UI en:", contextoElemento);
+      // Tooltips
+      const tooltipTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function(tooltipTriggerEl) {
+        if (!bootstrap.Tooltip.getInstance(tooltipTriggerEl)) {
+          console.log("Inicializando tooltip para:", tooltipTriggerEl);
+          return new bootstrap.Tooltip(tooltipTriggerEl);
         }
-        console.log("Componentes globales UI (re)inicializados.");
+        return bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+      });
+      // Popovers
+      const popoverTriggerList = [].slice.call(contextoElemento.querySelectorAll('[data-bs-toggle="popover"]'));
+      popoverTriggerList.map(function(popoverTriggerEl) {
+        if (!bootstrap.Popover.getInstance(popoverTriggerEl)) {
+          return new bootstrap.Popover(popoverTriggerEl);
+        }
+        return bootstrap.Popover.getInstance(popoverTriggerEl);
+      });
+      // jQuery Scrollbar
+      if (typeof $.fn.scrollbar === 'function') {
+        $(contextoElemento).find('.scrollbar-inner').not('.scroll-wrapper').scrollbar();
+        console.log("Scrollbars (re)inicializados si es necesario.");
+      } else {
+        console.warn("jQuery Scrollbar no está disponible ($.fn.scrollbar no es una función).");
+      }
+      console.log("Componentes globales UI (re)inicializados.");
     }
 
     function cargarContenido(rutaPaginaCompleta) { // ej: "public-profile&user_id_view=123" o "home"
-        console.log(`INDEX.PHP: Solicitando carga de contenido para: ${rutaPaginaCompleta}`);
+      console.log(`INDEX.PHP: Solicitando carga de contenido para: ${rutaPaginaCompleta}`);
 
-        let baseRuta = rutaPaginaCompleta;
-        let queryString = "";
-        
-        // Separar la ruta base de los parámetros
-        // Buscamos el primer '&' o '?' para separar la ruta base de los parámetros
-        const separadorParamsIndex = rutaPaginaCompleta.search(/[?&]/);
+      let baseRuta = rutaPaginaCompleta;
+      let queryString = "";
+
+      // Separar la ruta base de los parámetros
+      // Buscamos el primer '&' o '?' para separar la ruta base de los parámetros
+      const separadorParamsIndex = rutaPaginaCompleta.search(/[?&]/);
 
 
-        if (separadorParamsIndex !== -1) {
-            baseRuta = rutaPaginaCompleta.substring(0, separadorParamsIndex);
-            queryString = rutaPaginaCompleta.substring(separadorParamsIndex + 1); // user_id_view=123
-            // Si el separador era '?', lo mantenemos, si era '&', lo cambiamos por '?' para la URL
-            if (rutaPaginaCompleta[separadorParamsIndex] === '&') {
-                queryString = `?${queryString}`;
-            } else {
-                 queryString = `?${queryString}`; // Ya incluye el '?'
-            }
+      if (separadorParamsIndex !== -1) {
+        baseRuta = rutaPaginaCompleta.substring(0, separadorParamsIndex);
+        queryString = rutaPaginaCompleta.substring(separadorParamsIndex + 1); // user_id_view=123
+        // Si el separador era '?', lo mantenemos, si era '&', lo cambiamos por '?' para la URL
+        if (rutaPaginaCompleta[separadorParamsIndex] === '&') {
+          queryString = `?${queryString}`;
         } else {
-            // No hay parámetros, baseRuta es la ruta completa
-            baseRuta = rutaPaginaCompleta;
-            queryString = ""; // No hay query string
+          queryString = `?${queryString}`; // Ya incluye el '?'
         }
-        
-        // Comprobamos si la página y sus parámetros ya están cargados
-        if (paginaActualCargada === baseRuta && parametrosPaginaActual === queryString) {
-            console.log(`INDEX.PHP: La página ${baseRuta} con parámetros '${queryString}' ya está cargada. No se recarga.`);
-            window.scrollTo(0, 0);
-            return; 
-        }
+      } else {
+        // No hay parámetros, baseRuta es la ruta completa
+        baseRuta = rutaPaginaCompleta;
+        queryString = ""; // No hay query string
+      }
 
-        const renderTarget = document.getElementById("render-body");
-        if (!renderTarget) {
-            console.error("INDEX.PHP: Elemento #render-body no encontrado. No se puede cargar contenido.");
-            return;
-        }
+      // Comprobamos si la página y sus parámetros ya están cargados
+      if (paginaActualCargada === baseRuta && parametrosPaginaActual === queryString) {
+        console.log(`INDEX.PHP: La página ${baseRuta} con parámetros '${queryString}' ya está cargada. No se recarga.`);
+        window.scrollTo(0, 0);
+        return;
+      }
 
-        renderTarget.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div></div>';
-        
-        // Construir la URL final para el fetch
-        const fetchUrl = `${baseRuta}.php${queryString}`;
-        console.log("INDEX.PHP: Fetch URL construida:", fetchUrl);
+      const renderTarget = document.getElementById("render-body");
+      if (!renderTarget) {
+        console.error("INDEX.PHP: Elemento #render-body no encontrado. No se puede cargar contenido.");
+        return;
+      }
 
-        fetch(fetchUrl)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Error HTTP ${response.status} al cargar ${fetchUrl}`);
-                }
-                return response.text();
-            })
-            .then((html) => {
-                renderTarget.innerHTML = html;
-                paginaActualCargada = baseRuta; // Guardar la ruta base
-                parametrosPaginaActual = queryString; // Guardar los parámetros
+      renderTarget.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 300px;"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div></div>';
 
-                ejecutarScriptsEn(renderTarget);
-                reinicializarComponentesGlobalesUI(renderTarget);
+      // Construir la URL final para el fetch
+      const fetchUrl = `${baseRuta}.php${queryString}`;
+      console.log("INDEX.PHP: Fetch URL construida:", fetchUrl);
 
-                if (typeof window.inicializarPaginaActual === 'function') {
-                    console.log(`INDEX.PHP: Llamando a window.inicializarPaginaActual() para ${baseRuta}`);
-                    try {
-                        window.inicializarPaginaActual();
-                    } catch (e) {
-                        console.error(`INDEX.PHP: Error al ejecutar inicializarPaginaActual() para ${baseRuta}:`, e);
-                    }
-                } else {
-                    console.log(`INDEX.PHP: No se encontró window.inicializarPaginaActual() para ${baseRuta}.`);
-                }
+      fetch(fetchUrl)
+        .then((response) => {
+          if (!response.ok) {
+            // Crear un error personalizado que incluya el status
+            const error = new Error(`Error HTTP ${response.status} al cargar ${fetchUrl}`);
+            error.status = response.status; // Adjuntar el status al objeto de error
+            throw error; // Lanzar el error para que sea capturado por .catch()
+          }
+          return response.text();
+        })
+        .then((html) => {
+          renderTarget.innerHTML = html;
+          paginaActualCargada = baseRuta; // Guardar la ruta base
+          parametrosPaginaActual = queryString; // Guardar los parámetros
 
-                window.scrollTo(0, 0);
-                console.log(`INDEX.PHP: Carga de contenido para ${fetchUrl} completada.`);
-            })
-            .catch((error) => {
-                console.error("INDEX.PHP: Error detallado al cargar contenido:", error);
-                renderTarget.innerHTML = `
-                    <div class="page-inner mt--5">
-                        <div class="row mt--2"><div class="col-md-12"><div class="card full-height">
-                        <div class="card-body text-center">
-                            <div class="card-title h2 text-danger">Oops! Algo salió mal.</div>
-                            <div class="card-category">No se pudo cargar: <code>${baseRuta}.php</code></div>
-                            <p class="mt-3"><strong>Detalle:</strong> ${error.message}</p>
-                            <a href="index.php" class="btn btn-primary btn-round mt-3">Volver al Inicio</a>
-                        </div></div></div></div>
-                    </div>`;
-                paginaActualCargada = null; 
-                parametrosPaginaActual = null;
-            });
+          ejecutarScriptsEn(renderTarget);
+          reinicializarComponentesGlobalesUI(renderTarget);
+
+          if (typeof window.inicializarPaginaActual === 'function') {
+            console.log(`INDEX.PHP: Llamando a window.inicializarPaginaActual() para ${baseRuta}`);
+            try {
+              window.inicializarPaginaActual();
+            } catch (e) {
+              console.error(`INDEX.PHP: Error al ejecutar inicializarPaginaActual() para ${baseRuta}:`, e);
+            }
+          } else {
+            console.log(`INDEX.PHP: No se encontró window.inicializarPaginaActual() para ${baseRuta}.`);
+          }
+
+          window.scrollTo(0, 0);
+          console.log(`INDEX.PHP: Carga de contenido para ${fetchUrl} completada.`);
+        })
+        .catch((error) => {
+          console.error("INDEX.PHP: Error detallado al cargar contenido:", error);
+
+          let errorTitle = "Oops! Algo salió mal.";
+          // Asegúrate de que baseRuta esté disponible en este scope, si no, usa fetchUrl o un mensaje genérico.
+          // Si baseRuta puede ser undefined aquí, considera cómo obtener el nombre del archivo.
+          const requestedFile = baseRuta ? `<code>${baseRuta}.php</code>` : `la página solicitada`;
+          let errorCategory = `No se pudo cargar: ${requestedFile}`;
+
+          // Personaliza el mensaje si es un error 404
+          if (error.status === 404) {
+            errorTitle = "Error 404: Página no encontrada";
+            errorCategory = `El recurso ${requestedFile} no se pudo encontrar. Asegúrate de que la URL es correcta y el archivo existe.`;
+          } else if (error.status) {
+            // Para otros errores HTTP con status conocido
+            errorTitle = `Error ${error.status}`;
+          }
+          // Si error.status no está definido (p.ej., error de red), se usarán los mensajes genéricos de arriba.
+
+          renderTarget.innerHTML = `
+            <div class="page-inner mt--5">
+                <div class="row mt--2">
+                    <div class="col-md-12">
+                        <div class="card full-height">
+                            <div class="card-body text-center">
+                                <!-- Animación Lottie -->
+                                <div class="mx-auto mb-4" style="max-width: 400px;">
+                                    <lottie-player
+                                        src="assets/img/lottie/404.json" 
+                                        background="transparent"
+                                        speed="1"
+                                        loop
+                                        autoplay>
+                                    </lottie-player>
+                                </div>
+                                <!-- Fin Animación Lottie -->
+
+                                <div class="card-title h2 text-danger">${errorTitle}</div>
+                                <div class="card-category">${errorCategory}</div>
+                                <p class="mt-3"><strong>Detalle:</strong> ${error.message}</p>
+                                <a href="index.php" class="btn btn-primary btn-round mt-3">Volver al Inicio</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+          paginaActualCargada = null;
+          parametrosPaginaActual = null;
+        });
+
+      // Este div es donde se renderizará el contenido o el error.
+      // Asegúrate de que existe en tu HTML, por ejemplo: <div id="content-render-target"></div>
+      // const renderTarget = document.getElementById('content-render-target'); // Ejemplo
+
+      // Variables que tu código parece usar, asegúrate de que estén definidas.
+      // let paginaActualCargada = null;
+      // let parametrosPaginaActual = null;
+      // let baseRuta = 'alguna/ruta/base'; // Ejemplo
+      // let queryString = '?param=valor'; // Ejemplo
+      // let fetchUrl = 'ruta/a/cargar.php'; // Ejemplo
+      // const renderTarget = document.body; // O el elemento específico donde cargas el contenido
+
+      // Funciones placeholder que tu código podría estar usando:
+      // function ejecutarScriptsEn(elemento) { console.log("Ejecutando scripts en", elemento); }
+      // function reinicializarComponentesGlobalesUI(elemento) { console.log("Reinicializando UI en", elemento); }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        console.log("INDEX.PHP: DOM completamente cargado y parseado.");
-        reinicializarComponentesGlobalesUI(document.body);
+      console.log("INDEX.PHP: DOM completamente cargado y parseado.");
+      reinicializarComponentesGlobalesUI(document.body);
 
-        // Obtener la página de la URL (puede incluir parámetros)
-        const params = new URLSearchParams(window.location.search);
-        let paginaInicial = params.get("page") || "home"; // "home" o "public-profile&user_id_view=123"
+      // Obtener la página de la URL (puede incluir parámetros)
+      const params = new URLSearchParams(window.location.search);
+      let paginaInicial = params.get("page") || "home"; // "home" o "public-profile&user_id_view=123"
 
-        // Si 'page' tiene parámetros, necesitamos mantenerlos.
-        // URLSearchParams ya nos da el valor completo de 'page'.
-        // Ejemplo: si la URL es ?page=public-profile&user_id_view=123
-        // params.get("page") devolverá "public-profile" si 'user_id_view' es otro param.
-        // Si queremos que ?page=micontenido&id=123 sea interpretado, page debe ser "micontenido&id=123"
-        // El enfoque actual de que data-page="public-profile&user_id_view=123" es mejor.
+      // Si 'page' tiene parámetros, necesitamos mantenerlos.
+      // URLSearchParams ya nos da el valor completo de 'page'.
+      // Ejemplo: si la URL es ?page=public-profile&user_id_view=123
+      // params.get("page") devolverá "public-profile" si 'user_id_view' es otro param.
+      // Si queremos que ?page=micontenido&id=123 sea interpretado, page debe ser "micontenido&id=123"
+      // El enfoque actual de que data-page="public-profile&user_id_view=123" es mejor.
 
-        // Para la carga inicial, si la URL es index.php?page=public-profile&user_id_view=123,
-        // params.get("page") solo nos dará "public-profile". Necesitamos reconstruir
-        // la cadena de query si hay más parámetros relevantes para la página.
-        // Sin embargo, la lógica actual de history.pushState y popstate usa el valor completo de data-page.
-        
-        // Simplificación: Asumimos que la lógica de data-page="ruta¶m=valor" es la principal.
-        // Para la carga inicial desde la URL, si es ?page=nombrepagina¶m1=valor1,
-        // la función cargarContenido lo parseará correctamente si le pasamos el string completo.
-        let paginaInicialCompleta = paginaInicial; // Por defecto, el valor de 'page'
+      // Para la carga inicial, si la URL es index.php?page=public-profile&user_id_view=123,
+      // params.get("page") solo nos dará "public-profile". Necesitamos reconstruir
+      // la cadena de query si hay más parámetros relevantes para la página.
+      // Sin embargo, la lógica actual de history.pushState y popstate usa el valor completo de data-page.
 
-        // Si hay otros parámetros en la URL que no son 'page' y que queremos pasar a la página inicial
-        // (esto es más complejo y depende de cómo quieras que funcione tu enrutamiento inicial)
-        // Por ahora, nos enfocamos en que el valor de "page" pueda ser "ruta¶ms"
-        
-        // Ejemplo: si la URL es index.php?page=public-profile&user_id_view=789
-        // params.get("page") solo es "public-profile"
-        // Tendrías que reconstruir el string de query si es necesario para la carga INICIAL.
-        // Pero para la navegación con data-page="public-profile&user_id_view=789" ya funciona.
+      // Simplificación: Asumimos que la lógica de data-page="ruta¶m=valor" es la principal.
+      // Para la carga inicial desde la URL, si es ?page=nombrepagina¶m1=valor1,
+      // la función cargarContenido lo parseará correctamente si le pasamos el string completo.
+      let paginaInicialCompleta = paginaInicial; // Por defecto, el valor de 'page'
 
-        // Para la carga inicial, si la URL es ?page=public-profile&user_id_view=123
-        // params.get("page") devolverá "public-profile".
-        // Necesitamos reconstruir si 'user_id_view' es un parámetro separado en la URL inicial.
-        // Si la URL es ?page=public-profile&user_id_view=123
-        // params.get("page") es 'public-profile'
-        // params.get("user_id_view") es '123'
-        
-        // Reconstruir la cadena de 'data-page' para la carga inicial si es necesario:
-        let paginaParaCargar = params.get("page") || "home";
-        let parametrosAdicionales = [];
-        for (const [key, value] of params.entries()) {
-            if (key !== "page") {
-                parametrosAdicionales.push(`${key}=${value}`);
-            }
+      // Si hay otros parámetros en la URL que no son 'page' y que queremos pasar a la página inicial
+      // (esto es más complejo y depende de cómo quieras que funcione tu enrutamiento inicial)
+      // Por ahora, nos enfocamos en que el valor de "page" pueda ser "ruta¶ms"
+
+      // Ejemplo: si la URL es index.php?page=public-profile&user_id_view=789
+      // params.get("page") solo es "public-profile"
+      // Tendrías que reconstruir el string de query si es necesario para la carga INICIAL.
+      // Pero para la navegación con data-page="public-profile&user_id_view=789" ya funciona.
+
+      // Para la carga inicial, si la URL es ?page=public-profile&user_id_view=123
+      // params.get("page") devolverá "public-profile".
+      // Necesitamos reconstruir si 'user_id_view' es un parámetro separado en la URL inicial.
+      // Si la URL es ?page=public-profile&user_id_view=123
+      // params.get("page") es 'public-profile'
+      // params.get("user_id_view") es '123'
+
+      // Reconstruir la cadena de 'data-page' para la carga inicial si es necesario:
+      let paginaParaCargar = params.get("page") || "home";
+      let parametrosAdicionales = [];
+      for (const [key, value] of params.entries()) {
+        if (key !== "page") {
+          parametrosAdicionales.push(`${key}=${value}`);
         }
-        if (parametrosAdicionales.length > 0) {
-            paginaParaCargar += (paginaParaCargar.includes('&') || paginaParaCargar.includes('?') ? '&' : (paginaParaCargar.includes('?') ? '' : (baseRuta.includes('/') ? '&' : '?'))) + parametrosAdicionales.join('&');
-             // Esta lógica de concatenación de '&' vs '?' puede ser compleja.
-             // Simplificamos asumiendo que page puede ser "public-profile" y los otros params son adicionales.
-             // Si page ya es "public-profile&id=x", entonces params.get("page") es solo "public-profile" si hay un & en la URL original
-             // Lo más robusto es que data-page contenga todo.
+      }
+      if (parametrosAdicionales.length > 0) {
+        paginaParaCargar += (paginaParaCargar.includes('&') || paginaParaCargar.includes('?') ? '&' : (paginaParaCargar.includes('?') ? '' : (baseRuta.includes('/') ? '&' : '?'))) + parametrosAdicionales.join('&');
+        // Esta lógica de concatenación de '&' vs '?' puede ser compleja.
+        // Simplificamos asumiendo que page puede ser "public-profile" y los otros params son adicionales.
+        // Si page ya es "public-profile&id=x", entonces params.get("page") es solo "public-profile" si hay un & en la URL original
+        // Lo más robusto es que data-page contenga todo.
+      }
+      // La forma más simple y robusta para la carga inicial basada en la URL es:
+      // 1. Obtener el valor del parámetro 'page' (ej. 'public-profile')
+      // 2. Reconstruir el resto del query string de la URL actual.
+      // Esto asume que tu PHP (public-profile.php) leerá de $_GET.
+
+      let url = new URL(window.location.href);
+      let paginaDeUrl = url.searchParams.get("page") || "home";
+      let queryParamsIniciales = [];
+      url.searchParams.forEach((value, key) => {
+        if (key !== "page") {
+          queryParamsIniciales.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
         }
-        // La forma más simple y robusta para la carga inicial basada en la URL es:
-        // 1. Obtener el valor del parámetro 'page' (ej. 'public-profile')
-        // 2. Reconstruir el resto del query string de la URL actual.
-        // Esto asume que tu PHP (public-profile.php) leerá de $_GET.
+      });
 
-        let url = new URL(window.location.href);
-        let paginaDeUrl = url.searchParams.get("page") || "home";
-        let queryParamsIniciales = [];
-        url.searchParams.forEach((value, key) => {
-            if (key !== "page") {
-                queryParamsIniciales.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-            }
-        });
+      let cadenaRutaInicial = paginaDeUrl;
+      if (queryParamsIniciales.length > 0) {
+        // Determinar si la páginaDeUrl ya es un path o solo un nombre de archivo
+        if (paginaDeUrl.includes('/')) { // Es probable un path, añadir ?
+          cadenaRutaInicial += "?" + queryParamsIniciales.join("&");
+        } else { // Es un nombre de archivo, añadir & si ya hay params o ? si no.
+          // Esto es lo que estamos tratando de simplificar.
+          // La clave es que `data-page` contenga todo.
+          // Para la URL inicial, `paginaDeUrl` es el nombre base.
+          cadenaRutaInicial += (cadenaRutaInicial.includes('?') ? '&' : '?') + queryParamsIniciales.join("&");
+          // REVISAR: Si la paginaDeUrl es "public-profile" y los params son "user_id_view=123"
+          // debería ser "public-profile&user_id_view=123" para que nuestro parser funcione.
+          // El `&` vs `?` inicial es el truco.
+          // Si el primer parámetro se une con '&' y no con '?', el parseo de `cargarContenido` lo tomará como parte de la ruta base.
+          // La lógica de `data-page` es más controlada.
+          // Para la URL, si es `index.php?page=public-profile&user_id_view=123`,
+          // entonces `paginaDeUrl` es `public-profile`.
+          // `queryParamsIniciales` es `['user_id_view=123']`.
+          // Necesitamos que `cadenaRutaInicial` sea `public-profile&user_id_view=123`
+          // para que `cargarContenido` lo procese bien.
+          cadenaRutaInicial = paginaDeUrl + (queryParamsIniciales.length > 0 ? "&" + queryParamsIniciales.join("&") : "");
 
-        let cadenaRutaInicial = paginaDeUrl;
-        if (queryParamsIniciales.length > 0) {
-             // Determinar si la páginaDeUrl ya es un path o solo un nombre de archivo
-            if (paginaDeUrl.includes('/')) { // Es probable un path, añadir ?
-                 cadenaRutaInicial += "?" + queryParamsIniciales.join("&");
-            } else { // Es un nombre de archivo, añadir & si ya hay params o ? si no.
-                     // Esto es lo que estamos tratando de simplificar.
-                     // La clave es que `data-page` contenga todo.
-                     // Para la URL inicial, `paginaDeUrl` es el nombre base.
-                     cadenaRutaInicial += (cadenaRutaInicial.includes('?') ? '&' : '?') + queryParamsIniciales.join("&");
-                     // REVISAR: Si la paginaDeUrl es "public-profile" y los params son "user_id_view=123"
-                     // debería ser "public-profile&user_id_view=123" para que nuestro parser funcione.
-                     // El `&` vs `?` inicial es el truco.
-                     // Si el primer parámetro se une con '&' y no con '?', el parseo de `cargarContenido` lo tomará como parte de la ruta base.
-                     // La lógica de `data-page` es más controlada.
-                     // Para la URL, si es `index.php?page=public-profile&user_id_view=123`,
-                     // entonces `paginaDeUrl` es `public-profile`.
-                     // `queryParamsIniciales` es `['user_id_view=123']`.
-                     // Necesitamos que `cadenaRutaInicial` sea `public-profile&user_id_view=123`
-                     // para que `cargarContenido` lo procese bien.
-                     cadenaRutaInicial = paginaDeUrl + (queryParamsIniciales.length > 0 ? "&" + queryParamsIniciales.join("&") : "");
-
-            }
         }
-        
+      }
 
-        console.log("INDEX.PHP: Cargando página inicial (construida desde URL):", cadenaRutaInicial);
-        cargarContenido(cadenaRutaInicial);
 
-        document.body.addEventListener("click", function(e) {
-            const linkElement = e.target.closest(".menu-link[data-page]");
-            if (linkElement) {
-                e.preventDefault();
-                const rutaCompletaAttr = linkElement.getAttribute("data-page"); // ej: "public-profile&user_id_view=123"
-                if (rutaCompletaAttr && rutaCompletaAttr.trim() !== "" && rutaCompletaAttr.trim() !== "#") {
-                    console.log("INDEX.PHP: Clic en menu-link, cargando ruta desde data-page:", rutaCompletaAttr);
-                    cargarContenido(rutaCompletaAttr);
-                    
-                    // Actualizar URL para reflejar la página y sus parámetros específicos
-                    // Necesitamos separar la ruta base de los parámetros para construir bien el query string
-                    let nuevaRutaBase = rutaCompletaAttr;
-                    let nuevosQueryParams = new URLSearchParams(); // Usar URLSearchParams para construir bien
+      console.log("INDEX.PHP: Cargando página inicial (construida desde URL):", cadenaRutaInicial);
+      cargarContenido(cadenaRutaInicial);
 
-                    const primerSeparador = rutaCompletaAttr.indexOf('&'); // O '?'
-                    if (primerSeparador !== -1) {
-                        nuevaRutaBase = rutaCompletaAttr.substring(0, primerSeparador);
-                        const paramsStr = rutaCompletaAttr.substring(primerSeparador + 1);
-                        // Parsear los parámetros manualmente si vienen como "key1=val1&key2=val2"
-                        const paramsArray = paramsStr.split('&');
-                        paramsArray.forEach(param => {
-                            const [key, value] = param.split('=');
-                            if (key && value !== undefined) {
-                                nuevosQueryParams.set(key, value);
-                            }
-                        });
-                    }
-                    
-                    const nuevaUrlObj = new URL(window.location.origin + window.location.pathname); // URL base sin query
-                    nuevaUrlObj.searchParams.set('page', nuevaRutaBase);
-                    nuevosQueryParams.forEach((value, key) => {
-                        nuevaUrlObj.searchParams.set(key, value);
-                    });
+      document.body.addEventListener("click", function(e) {
+        const linkElement = e.target.closest(".menu-link[data-page]");
+        if (linkElement) {
+          e.preventDefault();
+          const rutaCompletaAttr = linkElement.getAttribute("data-page"); // ej: "public-profile&user_id_view=123"
+          if (rutaCompletaAttr && rutaCompletaAttr.trim() !== "" && rutaCompletaAttr.trim() !== "#") {
+            console.log("INDEX.PHP: Clic en menu-link, cargando ruta desde data-page:", rutaCompletaAttr);
+            cargarContenido(rutaCompletaAttr);
 
-                    history.pushState({ page: rutaCompletaAttr }, "", nuevaUrlObj.toString());
+            // Actualizar URL para reflejar la página y sus parámetros específicos
+            // Necesitamos separar la ruta base de los parámetros para construir bien el query string
+            let nuevaRutaBase = rutaCompletaAttr;
+            let nuevosQueryParams = new URLSearchParams(); // Usar URLSearchParams para construir bien
 
-                } else {
-                    console.warn("INDEX.PHP: Clic en menu-link sin data-page válido o con '#':", linkElement);
+            const primerSeparador = rutaCompletaAttr.indexOf('&'); // O '?'
+            if (primerSeparador !== -1) {
+              nuevaRutaBase = rutaCompletaAttr.substring(0, primerSeparador);
+              const paramsStr = rutaCompletaAttr.substring(primerSeparador + 1);
+              // Parsear los parámetros manualmente si vienen como "key1=val1&key2=val2"
+              const paramsArray = paramsStr.split('&');
+              paramsArray.forEach(param => {
+                const [key, value] = param.split('=');
+                if (key && value !== undefined) {
+                  nuevosQueryParams.set(key, value);
                 }
+              });
             }
-        });
 
-        window.addEventListener('popstate', function(event) {
-            let paginaAHistorial = "home"; // Default
-            if (event.state && event.state.page) {
-                paginaAHistorial = event.state.page; // Esto ya debería tener la ruta completa con params
-            } else {
-                // Reconstruir desde la URL actual si no hay estado (caso borde)
-                const urlPop = new URL(window.location.href);
-                let paginaBasePop = urlPop.searchParams.get("page") || "home";
-                let paramsPop = [];
-                urlPop.searchParams.forEach((value, key) => {
-                    if (key !== "page") {
-                        paramsPop.push(`${key}=${value}`);
-                    }
-                });
-                paginaAHistorial = paginaBasePop + (paramsPop.length > 0 ? "&" + paramsPop.join("&") : "");
+            const nuevaUrlObj = new URL(window.location.origin + window.location.pathname); // URL base sin query
+            nuevaUrlObj.searchParams.set('page', nuevaRutaBase);
+            nuevosQueryParams.forEach((value, key) => {
+              nuevaUrlObj.searchParams.set(key, value);
+            });
+
+            history.pushState({
+              page: rutaCompletaAttr
+            }, "", nuevaUrlObj.toString());
+
+          } else {
+            console.warn("INDEX.PHP: Clic en menu-link sin data-page válido o con '#':", linkElement);
+          }
+        }
+      });
+
+      window.addEventListener('popstate', function(event) {
+        let paginaAHistorial = "home"; // Default
+        if (event.state && event.state.page) {
+          paginaAHistorial = event.state.page; // Esto ya debería tener la ruta completa con params
+        } else {
+          // Reconstruir desde la URL actual si no hay estado (caso borde)
+          const urlPop = new URL(window.location.href);
+          let paginaBasePop = urlPop.searchParams.get("page") || "home";
+          let paramsPop = [];
+          urlPop.searchParams.forEach((value, key) => {
+            if (key !== "page") {
+              paramsPop.push(`${key}=${value}`);
             }
-            console.log("INDEX.PHP: Evento popstate, cargando página:", paginaAHistorial);
-            cargarContenido(paginaAHistorial);
-        });
+          });
+          paginaAHistorial = paginaBasePop + (paramsPop.length > 0 ? "&" + paramsPop.join("&") : "");
+        }
+        console.log("INDEX.PHP: Evento popstate, cargando página:", paginaAHistorial);
+        cargarContenido(paginaAHistorial);
+      });
     });
 
     function cargarModal(event) {
-        event.preventDefault();
-        console.log("Función cargarModal llamada.");
+      event.preventDefault();
+      console.log("Función cargarModal llamada.");
     }
-</script>
+  </script>
 </body>
 
 </html>

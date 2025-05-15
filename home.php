@@ -1,17 +1,103 @@
 <?php
-// ---------------------------------------------------------------------
-// BLOQUE DE INICIO, VERIFICACIÓN DE SESIÓN Y RECUPERACIÓN COMPLETA DE DATOS DEL USUARIO
-// (Basado en la tabla 'usuarios' y lo guardado en $_SESSION durante el login)
-// ---------------------------------------------------------------------
+// home.php (o donde estén los contadores)
 
+// ---------------------------------------------------------------------
+// BLOQUE DE INICIO, VERIFICACIÓN DE SESIÓN
+// ---------------------------------------------------------------------
 if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
 
 if (!isset($_SESSION['user_id'])) {
-  header('Location: landing.html');
+  header('Location: landing.html'); // O tu página de login si el usuario no está logueado
   exit;
 }
+
+// ---------------------------------------------------------------------
+// INICIO: LÓGICA PARA OBTENER CONTEOS DE LA BASE DE DATOS
+// ---------------------------------------------------------------------
+
+// Incluir la configuración de la base de datos
+// Asumiendo que home.php está en la raíz de 'emprendeya-platform' y 'config' es una subcarpeta.
+// Si tu home.php está en otra ubicación (ej. 'views/home.php'), ajusta la ruta a config/database.php.
+require_once __DIR__ . '/config/database.php';
+
+$totalEmprendedores = 0;
+$totalInversores = 0;
+$totalProyectos = 0;
+$totalAliados = 576; // Dejamos este estático por ahora. Implementa la consulta si tienes "Aliados".
+
+// Verificar si la conexión se estableció correctamente en database.php
+if (isset($conn) && $conn) {
+  // 1. Contar Emprendedores
+  // Usar rol::TEXT ILIKE si 'rol' es un tipo ENUM. Si es VARCHAR/TEXT, ILIKE solo es suficiente.
+  $sqlEmprendedores = "SELECT COUNT(*) AS total FROM usuarios WHERE rol::TEXT ILIKE 'Emprendedor'";
+  $resultEmprendedores = pg_query($conn, $sqlEmprendedores);
+  if ($resultEmprendedores) {
+    $row = pg_fetch_assoc($resultEmprendedores);
+    $totalEmprendedores = $row['total'] ?? 0;
+  } else {
+    error_log("Error al contar emprendedores en home.php: " . pg_last_error($conn));
+  }
+
+  // 2. Contar Inversores
+  $sqlInversores = "SELECT COUNT(*) AS total FROM usuarios WHERE rol::TEXT ILIKE 'Inversor'";
+  $resultInversores = pg_query($conn, $sqlInversores);
+  if ($resultInversores) {
+    $row = pg_fetch_assoc($resultInversores);
+    $totalInversores = $row['total'] ?? 0;
+  } else {
+    error_log("Error al contar inversores en home.php: " . pg_last_error($conn));
+  }
+
+  // 3. Contar Proyectos (activos/aprobados)
+  // Asegúrate que la tabla 'proyectos' y la columna 'estado' existan.
+  // Si 'estado' en 'proyectos' también es un ENUM, usa estado::TEXT ILIKE
+  $sqlProyectos = "SELECT COUNT(*) AS total FROM proyectos WHERE estado ILIKE 'aprobado' OR estado ILIKE 'activo'";
+  $resultProyectos = pg_query($conn, $sqlProyectos);
+  if ($resultProyectos) {
+    $row = pg_fetch_assoc($resultProyectos);
+    $totalProyectos = $row['total'] ?? 0;
+  } else {
+    error_log("Error al contar proyectos en home.php: " . pg_last_error($conn));
+  }
+
+  // 4. Contar Aliados (SI TIENES UNA TABLA O FORMA DE IDENTIFICARLOS)
+  // Ejemplo si 'rol' es ENUM y tienes un rol 'Aliado':
+  /*
+    $sqlAliados = "SELECT COUNT(*) AS total FROM usuarios WHERE rol::TEXT ILIKE 'Aliado'";
+    $resultAliados = pg_query($conn, $sqlAliados);
+    if ($resultAliados) {
+        $row = pg_fetch_assoc($resultAliados);
+        $totalAliados = $row['total'] ?? 0;
+    } else {
+        error_log("Error al contar aliados en home.php: " . pg_last_error($conn));
+    }
+    */
+
+  // No cerramos $conn aquí si home.php es incluido por index.php y index.php maneja el cierre global.
+  // Si home.php es accedido directamente y este script es el único que usa $conn en esta ejecución,
+  // podrías considerar cerrarla, pero es más común manejarlo globalmente.
+
+} else {
+  error_log("HOME.PHP: Error de conexión a la base de datos. La variable \$conn no está definida o la conexión falló desde config/database.php.");
+  // Los contadores se mostrarán como 0 o el valor estático si la conexión falla.
+}
+
+// Formatear los números para mejor visualización (opcional)
+function format_number_es($number)
+{
+  return number_format((int)$number, 0, ',', '.'); // Asegurar que es entero para number_format
+}
+
+$totalEmprendedores_f = format_number_es($totalEmprendedores);
+$totalInversores_f = format_number_es($totalInversores);
+$totalProyectos_f = format_number_es($totalProyectos);
+$totalAliados_f = format_number_es($totalAliados); // Formatear también el estático, por si acaso
+
+// ---------------------------------------------------------------------
+// FIN: LÓGICA PARA OBTENER CONTEOS
+// ---------------------------------------------------------------------
 ?>
 <div id="carouselExampleCaptions" class="carousel slide compact-carousel">
   <div class="carousel-indicators">
@@ -80,28 +166,22 @@ if (!isset($_SESSION['user_id'])) {
       </div>
 
     </div>
-    <!-- Marcadores Pagina  -->
+    <!-- Contadores -->
     <div class="row">
       <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-primary card-round">
           <div class="card-body">
-            <div class="row">
+            <div class="row align-items-center">
               <div class="col-5">
-                <div class="icon-big text-center">
+                <div class="icon-big text-center ">
                   <i class="fas fa-users"></i>
                 </div>
               </div>
               <div class="col-7 col-stats">
                 <div class="numbers">
-                  <p class="card-category">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">Emprendedores</font>
-                    </font>
-                  </p>
-                  <h4 class="card-title">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">1.294</font>
-                    </font>
+                  <p class="card-category">Emprendedores</p>
+                  <h4 class="card-title" id="contador-emprendedores">
+                    <?php echo $totalEmprendedores_f; ?>
                   </h4>
                 </div>
               </div>
@@ -112,23 +192,17 @@ if (!isset($_SESSION['user_id'])) {
       <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-info card-round">
           <div class="card-body">
-            <div class="row">
+            <div class="row align-items-center">
               <div class="col-5">
                 <div class="icon-big text-center">
-                  <i class="fas fa-user-check"></i>
+                  <i class="fas fa-user-tie"></i>
                 </div>
               </div>
               <div class="col-7 col-stats">
                 <div class="numbers">
-                  <p class="card-category">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">Inversores</font>
-                    </font>
-                  </p>
-                  <h4 class="card-title">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">1303</font>
-                    </font>
+                  <p class="card-category">Inversores</p>
+                  <h4 class="card-title" id="contador-inversores">
+                    <?php echo $totalInversores_f; ?>
                   </h4>
                 </div>
               </div>
@@ -139,23 +213,17 @@ if (!isset($_SESSION['user_id'])) {
       <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-success card-round">
           <div class="card-body">
-            <div class="row">
+            <div class="row align-items-center">
               <div class="col-5">
                 <div class="icon-big text-center">
-                  <i class="fas fa-chart-pie"></i>
+                  <i class="fas fa-project-diagram"></i>
                 </div>
               </div>
               <div class="col-7 col-stats">
                 <div class="numbers">
-                  <p class="card-category">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">Proyectos</font>
-                    </font>
-                  </p>
-                  <h4 class="card-title">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">1345</font>
-                    </font>
+                  <p class="card-category">Proyectos Activos</p>
+                  <h4 class="card-title" id="contador-proyectos">
+                    <?php echo $totalProyectos_f; ?>
                   </h4>
                 </div>
               </div>
@@ -166,23 +234,17 @@ if (!isset($_SESSION['user_id'])) {
       <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-secondary card-round">
           <div class="card-body">
-            <div class="row">
+            <div class="row align-items-center">
               <div class="col-5">
                 <div class="icon-big text-center">
-                  <i class="far fa-check-circle"></i>
+                  <i class="fas fa-hands-helping"></i>
                 </div>
               </div>
               <div class="col-7 col-stats">
                 <div class="numbers">
-                  <p class="card-category">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">Aliados</font>
-                    </font>
-                  </p>
-                  <h4 class="card-title">
-                    <font style="vertical-align: inherit;">
-                      <font style="vertical-align: inherit;">576</font>
-                    </font>
+                  <p class="card-category">Aliados</p>
+                  <h4 class="card-title" id="contador-aliados">
+                    <?php echo $totalAliados_f; ?>
                   </h4>
                 </div>
               </div>
@@ -191,6 +253,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
       </div>
     </div>
+    <!-- Fin Contadores -->
     <div class="row">
       <div class="col-md-8">
         <div class="card card-round">
@@ -459,120 +522,32 @@ if (!isset($_SESSION['user_id'])) {
     </div>
     <!-- Fin Sección de Emprendedores -->
 
-    <div class="row">
+    <!-- Sección de Proyectos Recientes (Lista/Grid) -->
+    <div class="row mt-4">
       <div class="col-md-12">
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row card-tools-still-right">
-              <h4 class="card-title text-primary">
-                <font style="vertical-align: inherit">
-                  <font style="vertical-align: inherit">Proyectos Recientes</font>
-                </font>
-              </h4>
+              <h4 class="card-title text-primary">Proyectos Recientes</h4>
             </div>
             <p class="card-category">
-              <font style="vertical-align: inherit">
-                <font style="vertical-align: inherit">
-                  Explora las nuevas iniciativas que están tomando forma y
-                  transformando el futuro.</font>
-              </font>
+              Explora las nuevas iniciativas que están tomando forma y transformando el futuro.
             </p>
           </div>
           <div class="card-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="blog-item bg-light rounded overflow-hidden">
-                  <div class="blog-img position-relative overflow-hidden">
-                    <img class="img-fluid" src="assets/img/blog-1.jpeg" alt="" />
-                    <a class="position-absolute top-0 start-0 bg-primary text-white rounded-end mt-5 py-2 px-4"
-                      href="">Electricidad</a>
-                  </div>
-                  <div class="p-4">
-                    <div class="d-flex mb-3">
-                      <small class="me-3"><i class="far fa-user text-primary me-2"></i>Pepito
-                        Peréz</small>
-                      <small><i class="far fa-calendar-alt text-primary me-2"></i>01
-                        Jan, 2024</small>
-                    </div>
-                    <h4 class="mb-3">Evolti</h4>
-                    <p>
-                      Evolti se especializa en soluciones avanzadas de energía
-                      solar diseñadas para transformar la forma en que el mundo
-                      obtiene y utiliza energía. Ofrecemos paneles solares de
-                      alta eficiencia, sistemas de almacenamiento de energía y
-                      servicios de instalación personalizados que permiten a
-                      hogares y empresas reducir costos y su huella de carbono.
-                      En Evolti, nuestra misión es liderar la evolución hacia un
-                      futuro energético más limpio y sostenible, brindando a
-                      nuestros clientes una transición fluida hacia una energía
-                      renovable confiable y eficiente.
-                    </p>
-                    <a class="text-uppercase" href="proyecto.php">Read More <i class="bi bi-arrow-right"></i></a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="blog-item bg-light rounded overflow-hidden">
-                  <div class="blog-img position-relative overflow-hidden">
-                    <img class="img-fluid" src="assets/img/blog-3.jpeg" alt="" />
-                    <a class="position-absolute top-0 start-0 bg-primary text-white rounded-end mt-5 py-2 px-4"
-                      href="">Tecnología</a>
-                  </div>
-                  <div class="p-4">
-                    <div class="d-flex mb-3">
-                      <small class="me-3"><i class="far fa-user text-primary me-2"></i>Pepito
-                        Peréz</small>
-                      <small><i class="far fa-calendar-alt text-primary me-2"></i>01
-                        Jan, 2025</small>
-                    </div>
-                    <h4 class="mb-3">TechTide</h4>
-                    <p>
-                      TechTide es una empresa innovadora en el campo de la
-                      tecnología wearable. Especializados en dispositivos
-                      inteligentes para el monitoreo de salud y el bienestar,
-                      ofrecemos productos que combinan la última tecnología con
-                      un diseño elegante. Desde pulseras que rastrean tu
-                      actividad física hasta gafas de realidad aumentada,
-                      TechTide te mantiene a la vanguardia del progreso
-                      tecnológico mientras cuida tu salud y estilo de vida.
-                    </p>
-                    <a class="text-uppercase" href="proyecto.php">Read More <i class="bi bi-arrow-right"></i></a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="blog-item bg-light rounded overflow-hidden">
-                  <div class="blog-img position-relative overflow-hidden">
-                    <img class="img-fluid" src="assets/img/blog-2.jpeg" alt="" />
-                    <a class="position-absolute top-0 start-0 bg-primary text-white rounded-end mt-5 py-2 px-4"
-                      href="">Ambiental</a>
-                  </div>
-                  <div class="p-4">
-                    <div class="d-flex mb-3">
-                      <small class="me-3"><i class="far fa-user text-primary me-2"></i>Pepito
-                        Peréz</small>
-                      <small><i class="far fa-calendar-alt text-primary me-2"></i>01
-                        Jan, 2023</small>
-                    </div>
-                    <h4 class="mb-3">EcoSfera</h4>
-                    <p>
-                      EcoSfera es una startup dedicada a la creación de
-                      soluciones sostenibles para el hogar y la oficina. Desde
-                      productos ecológicos de limpieza hasta muebles hechos con
-                      materiales reciclados, nuestra misión es reducir el
-                      impacto ambiental sin sacrificar el estilo y la
-                      funcionalidad. Con EcoSfera, cada elección que haces
-                      cuenta para un futuro más verde.
-                    </p>
-                    <a class="text-uppercase" href="proyecto.php">Read More <i class="bi bi-arrow-right"></i></a>
-                  </div>
-                </div>
-              </div>
+            <div id="proyectos-recientes-container" class="row">
+              <!-- Tarjetas de proyectos recientes -->
             </div>
+            <div id="loading-proyectos-recientes" class="text-center py-4" style="display:none;">
+              <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+              <p class="mt-2">Cargando proyectos...</p>
+            </div>
+            <div id="error-proyectos-recientes" class="text-center text-danger py-4" style="display:none;"></div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col-md-4">
         <div class="card card-round">
@@ -1140,54 +1115,137 @@ if (!isset($_SESSION['user_id'])) {
   function inicializarPaginaActual() {
     console.log("HOME.PHP: inicializarPaginaActual() ejecutada.");
 
-    // Función showAlert (si la necesitas en esta página específicamente)
-    // Si ya está global en index.php, no necesitas redefinirla.
-    // function showAlert(type, title, message) { /* ... tu función showAlert ... */ }
+    // Función showAlert (si la necesitas y no está global)
+    // function showAlert(type, title, message) { /* ... tu código ... */ }
 
+    // --- Función para Cargar y Mostrar Proyectos Recientes ---
+    function cargarProyectosRecientes() {
+      const $container = $('#proyectos-recientes-container');
+      const $loading = $('#loading-proyectos-recientes'); // ID específico
+      const $error = $('#error-proyectos-recientes'); // ID específico
+
+      if (!$container.length) {
+        console.error("HOME.PHP: Contenedor #proyectos-recientes-container no encontrado.");
+        $error.text("Error de configuración: Contenedor de proyectos no encontrado.").show();
+        return;
+      }
+      if (!$loading.length || !$error.length) {
+        console.warn("HOME.PHP: Indicadores de carga/error para proyectos recientes no encontrados.");
+      }
+
+      $loading.show();
+      $error.hide();
+      $container.html('');
+
+      $.ajax({
+        url: 'backend-php/get_proyectos_recientes.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+          $loading.hide();
+          if (response.success && response.data && response.data.length > 0) {
+            console.log("HOME.PHP: Proyectos recientes recibidos:", response.data.length);
+            let proyectosHtml = '';
+            response.data.forEach(function(proyecto) {
+              const logoProyectoUrl = proyecto.logo_proyecto || 'assets/img/examples/project_default.png';
+              const sector = proyecto.sector || 'General';
+              const nombreEmprendedor = proyecto.nombre_emprendedor || 'N/A';
+              const fechaFormateada = proyecto.fecha_formateada || 'N/A';
+              const nombreProyecto = proyecto.nombre_proyecto || 'Proyecto Sin Título';
+              const resumenProyecto = proyecto.resumen || 'Sin descripción breve.';
+              const detalleProyectoDataPage = `project-detail&id_proyecto=${proyecto.id_proyecto}`;
+
+              proyectosHtml += `
+                            <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+                                <div class="card blog-item bg-light rounded overflow-hidden w-100 shadow-sm h-100">
+                                    <div class="blog-img position-relative overflow-hidden" style="height: 200px;">
+                                        <img class="img-fluid w-100 h-100" src="${logoProyectoUrl}" alt="Logo ${nombreProyecto}" style="object-fit: cover;">
+                                        <span class="position-absolute top-0 start-0 bg-primary text-white rounded-end mt-3 py-1 px-3" style="font-size: 0.8rem;">
+                                            ${sector}
+                                        </span>
+                                    </div>
+                                    <div class="p-4 d-flex flex-column">
+                                        <div class="d-flex mb-3">
+                                            <small class="me-3 text-muted" title="Creado por">
+                                                <i class="far fa-user text-primary me-1"></i>${nombreEmprendedor}
+                                            </small>
+                                            <small class="text-muted" title="Fecha de publicación">
+                                                <i class="far fa-calendar-alt text-primary me-1"></i>${fechaFormateada}
+                                            </small>
+                                        </div>
+                                        <h5 class="mb-3 card-title" style="min-height: 48px;">
+                                            <a href="#" class="text-dark menu-link" data-page="${detalleProyectoDataPage}" title="${nombreProyecto}">
+                                                ${nombreProyecto}
+                                            </a>
+                                        </h5>
+                                        <p class="card-text text-muted flex-grow-1" style="font-size: 0.9rem;">
+                                            ${resumenProyecto}
+                                        </p>
+                                        <a class="btn btn-sm btn-outline-primary btn-round mt-auto menu-link" href="#" data-page="${detalleProyectoDataPage}">
+                                            Ver Proyecto <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+            });
+            $container.html(proyectosHtml);
+          } else if (response.data && response.data.length === 0) {
+            console.log("HOME.PHP: No hay proyectos recientes para mostrar.");
+            $container.html('<div class="col-12 text-center py-5"><p class="lead">Aún no hay proyectos recientes publicados.</p></div>');
+          } else {
+            $error.text(response.message || 'No se pudieron cargar los proyectos.').show();
+            console.error("HOME.PHP: Error al cargar proyectos recientes:", response.message);
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          $loading.hide();
+          $error.text('Error de conexión al cargar proyectos recientes.').show();
+          console.error("HOME.PHP: Error AJAX al cargar proyectos recientes:", textStatus, errorThrown, jqXHR.responseText);
+        }
+      });
+    }
+
+    // --- Función para Cargar y Mostrar Carrusel de Emprendedores ---
     function cargarEmprendedoresCarousel() {
       const $carouselContainer = $('#emprendedores-carousel');
-      const $loadingIndicator = $('#loading-emprendedores');
-      const $errorIndicator = $('#error-emprendedores');
+      const $loadingIndicator = $('#loading-emprendedores-carousel'); // ID específico
+      const $errorIndicator = $('#error-emprendedores-carousel'); // ID específico
 
       if (!$carouselContainer.length) {
         console.error("HOME.PHP: Contenedor del carrusel #emprendedores-carousel no encontrado.");
+        $errorIndicator.text("Error de configuración: Contenedor de emprendedores no encontrado.").show();
         return;
+      }
+      if (!$loadingIndicator.length || !$errorIndicator.length) {
+        console.warn("HOME.PHP: Indicadores de carga/error para carrusel de emprendedores no encontrados.");
       }
 
       $loadingIndicator.show();
       $errorIndicator.hide();
-      // Si Owl Carousel ya fue inicializado y quieres recargar datos, destrúyelo primero
+
       if ($carouselContainer.hasClass('owl-loaded')) {
-        console.log("HOME.PHP: Destruyendo instancia previa de Owl Carousel.");
-        $carouselContainer.trigger('destroy.owl.carousel').removeClass('owl-loaded owl-hidden'); // Quitar owl-hidden también
-        $carouselContainer.html(''); // Limpiar items
+        console.log("HOME.PHP: Destruyendo instancia previa de Owl Carousel para emprendedores.");
+        $carouselContainer.trigger('destroy.owl.carousel').removeClass('owl-loaded owl-hidden');
+        $carouselContainer.html('');
       } else {
-        $carouselContainer.html(''); // Limpiar por si acaso
+        $carouselContainer.html('');
       }
 
-
       $.ajax({
-        url: 'backend-php/get_emprendedores.php', // Ruta a tu script PHP
+        url: 'backend-php/get_emprendedores.php',
         type: 'GET',
         dataType: 'json',
         success: function(response) {
           $loadingIndicator.hide();
           if (response.success && response.data && response.data.length > 0) {
-            console.log("HOME.PHP: Emprendedores recibidos:", response.data.length);
+            console.log("HOME.PHP: Emprendedores para carrusel recibidos:", response.data.length);
             let itemsHtml = '';
             response.data.forEach(function(emprendedor) {
               const fotoUrl = emprendedor.foto_perfil_url || 'assets/img/profile-signin.jpg';
               const nombre = emprendedor.nombre_completo || 'Emprendedor Anónimo';
-              const municipio = emprendedor.municipio || ''; // Dejar vacío si no hay
-              const telefono = emprendedor.telefono || ''; // Dejar vacío si no hay
-
-              // Decide cómo vas a manejar el enlace al perfil.
-              // Opción 1: Enlace directo que recarga la página (si profile.php es una página separada no cargada por AJAX)
-              // const perfilUrl = `index.php?page=profile&user_id_view=${emprendedor.id}`; 
-              // (Usa un nombre de param diferente a 'id' si 'id' se usa para el usuario actual)
-
-              // Opción 2: Usando el sistema menu-link para cargar perfil via AJAX
-              // (Necesitas una página 'public-profile.php' o similar que maneje 'user_id_view')
+              const municipio = emprendedor.municipio || '';
+              const telefono = emprendedor.telefono || '';
               const dataPageAttribute = `public-profile&user_id_view=${emprendedor.id}`;
 
               itemsHtml += `
@@ -1205,55 +1263,63 @@ if (!isset($_SESSION['user_id'])) {
             });
             $carouselContainer.html(itemsHtml);
 
-            $carouselContainer.owlCarousel({
-              loop: response.data.length > 4, // Activa el loop solo si hay más de 4 items (ajusta)
-              margin: 20,
-              nav: true,
-              dots: true, // A menudo se prefieren dots para este tipo de carrusel
-              autoplay: true,
-              autoplayTimeout: 4000,
-              autoplayHoverPause: true,
-              navText: ["<i class='fas fa-chevron-left p-2 bg-white text-primary rounded-circle shadow-sm'></i>", "<i class='fas fa-chevron-right p-2 bg-white text-primary rounded-circle shadow-sm'></i>"],
-              responsive: {
-                0: {
-                  items: 1,
-                  stagePadding: 30
-                }, // Mostrar parte del siguiente y anterior en móviles
-                576: {
-                  items: 2,
-                  stagePadding: 20
-                }, // Móviles grandes
-                768: {
-                  items: 3,
-                  stagePadding: 10
-                }, // Tablets
-                992: {
-                  items: 4
-                }, // Desktops pequeños
-                1200: {
-                  items: 5
-                } // Desktops grandes
-              }
-            });
-            console.log("HOME.PHP: Owl Carousel para emprendedores inicializado/actualizado.");
+            // Inicializar Owl Carousel si la librería está cargada
+            if (typeof $.fn.owlCarousel === 'function') {
+              $carouselContainer.owlCarousel({
+                loop: response.data.length > 4,
+                margin: 20,
+                nav: true,
+                dots: true,
+                autoplay: true,
+                autoplayTimeout: 4000,
+                autoplayHoverPause: true,
+                navText: ["<i class='fas fa-chevron-left p-2 bg-white text-primary rounded-circle shadow-sm'></i>", "<i class='fas fa-chevron-right p-2 bg-white text-primary rounded-circle shadow-sm'></i>"],
+                responsive: {
+                  0: {
+                    items: 1,
+                    stagePadding: 30
+                  },
+                  576: {
+                    items: 2,
+                    stagePadding: 20
+                  },
+                  768: {
+                    items: 3,
+                    stagePadding: 10
+                  },
+                  992: {
+                    items: 4
+                  },
+                  1200: {
+                    items: 5
+                  }
+                }
+              });
+              console.log("HOME.PHP: Owl Carousel para emprendedores inicializado/actualizado.");
+            } else {
+              console.error("HOME.PHP: Owl Carousel ($.fn.owlCarousel) no está definido. Asegúrate que el plugin esté cargado en index.php.");
+              $errorIndicator.text('Error de configuración: El carrusel no pudo cargarse.').show();
+            }
 
           } else if (response.data && response.data.length === 0) {
-            console.log("HOME.PHP: No hay emprendedores para mostrar.");
-            $carouselContainer.html('<div class="col-12 text-center py-5"><p class="lead">Aún no tenemos emprendedores destacados. ¡Sé el primero!</p></div>');
+            console.log("HOME.PHP: No hay emprendedores para mostrar en el carrusel.");
+            // No se muestra mensaje de error, simplemente el carrusel estará vacío o con un mensaje si Owl lo permite.
+            // O podrías poner un mensaje: $carouselContainer.html('<p class="text-center">No hay emprendedores aún.</p>');
           } else {
-            console.error("HOME.PHP: Error al cargar emprendedores:", response.message);
-            $errorIndicator.text(response.message || 'No se pudieron cargar los emprendedores. Intenta de nuevo más tarde.').show();
+            $errorIndicator.text(response.message || 'No se pudieron cargar los emprendedores.').show();
+            console.error("HOME.PHP: Error al cargar emprendedores para carrusel:", response.message);
           }
         },
         error: function(jqXHR, textStatus, errorThrown) {
           $loadingIndicator.hide();
-          $errorIndicator.text('Error de conexión al cargar emprendedores. Revisa tu conexión a internet.').show();
-          console.error("HOME.PHP: Error AJAX al cargar emprendedores:", textStatus, errorThrown, jqXHR.responseText);
+          $errorIndicator.text('Error de conexión al cargar emprendedores.').show();
+          console.error("HOME.PHP: Error AJAX al cargar emprendedores para carrusel:", textStatus, errorThrown, jqXHR.responseText);
         }
       });
     }
 
-    // Llamar a la función para cargar los emprendedores cuando se inicializa la página de inicio
+    // Llamar a las funciones para cargar el contenido de la página de inicio
+    cargarProyectosRecientes();
     cargarEmprendedoresCarousel();
 
     console.log("HOME.PHP: Fin de inicializarPaginaActual().");

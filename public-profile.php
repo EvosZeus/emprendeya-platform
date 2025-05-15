@@ -53,32 +53,60 @@ if ($resultEmprendedor && pg_num_rows($resultEmprendedor) > 0) {
     $emprendedor['red_facebook'] = htmlspecialchars($emprendedor['red_facebook'] ?? '', ENT_QUOTES, 'UTF-8');
     $emprendedor['red_linkedin'] = htmlspecialchars($emprendedor['red_linkedin'] ?? '', ENT_QUOTES, 'UTF-8');
     $emprendedor['red_instagram'] = htmlspecialchars($emprendedor['red_instagram'] ?? '', ENT_QUOTES, 'UTF-8');
-
 } else {
     echo "<div class='container page-inner'><div class='alert alert-warning text-center'>Perfil de emprendedor no encontrado o no válido.</div></div>";
     echo "<script>function inicializarPaginaActual() { console.log('PUBLIC-PROFILE.PHP: Emprendedor no encontrado, inicialización vacía.'); }</script>";
-    if ($conn) { pg_close($conn); }
+    if ($conn) {
+        pg_close($conn);
+    }
     exit;
 }
 
 // --- Obtener Proyectos del Emprendedor (Ejemplo) ---
-$proyectos = [];
-// Debes tener una tabla 'proyectos' con una columna 'usuario_id' que referencie al emprendedor
-$stmtProyectos = pg_prepare($conn, "get_emprendedor_proyectos", "SELECT id_proyecto, nombre_proyecto, descripcion_corta, imagen_principal_url, categoria FROM proyectos WHERE usuario_id = $1 ORDER BY fecha_creacion DESC LIMIT 6");
-$resultProyectos = pg_execute($conn, "get_emprendedor_proyectos", array($userIdToView));
+// --- Obtener Proyectos del Emprendedor ---
+$proyectos = []; // Inicializar el array
+// La conexión $conn ya debería estar abierta desde la consulta del perfil del emprendedor
 
-if ($resultProyectos) {
-    while ($row = pg_fetch_assoc($resultProyectos)) {
-        $row['imagen_principal_url'] = !empty(trim($row['imagen_principal_url'])) ? htmlspecialchars(trim($row['imagen_principal_url']), ENT_QUOTES, 'UTF-8') : 'assets/img/examples/example_project1.jpg'; // Default para imagen de proyecto
-        $row['nombre_proyecto'] = htmlspecialchars($row['nombre_proyecto'] ?? 'Proyecto sin nombre', ENT_QUOTES, 'UTF-8');
-        $row['descripcion_corta'] = htmlspecialchars(substr($row['descripcion_corta'] ?? '', 0, 100) . '...', ENT_QUOTES, 'UTF-8'); // Acortar descripción
-        $row['categoria'] = htmlspecialchars($row['categoria'] ?? 'General', ENT_QUOTES, 'UTF-8');
-        $proyectos[] = $row;
+// Asegúrate de que los nombres de columna (logo, resumen, sector, estado) existan en tu tabla 'proyectos'
+$sql_proyectos = "SELECT id_proyecto, nombre_proyecto, resumen, logo AS imagen_proyecto, sector 
+                  FROM proyectos 
+                  WHERE usuario_id = $1 AND (estado = 'aprobado' OR estado = 'activo')
+                  ORDER BY fecha_creacion DESC LIMIT 6"; // Mostrar hasta 6 proyectos
+
+$stmtProyectos = pg_prepare($conn, "get_emprendedor_proyectos_public_profile", $sql_proyectos); // Nuevo nombre para la sentencia preparada
+
+if (!$stmtProyectos) {
+    error_log("Error al preparar get_emprendedor_proyectos_public_profile: " . pg_last_error($conn));
+    // No necesitas un 'exit' aquí, la página puede continuar mostrando el perfil sin proyectos si falla la query
+} else {
+    $resultProyectos = pg_execute($conn, "get_emprendedor_proyectos_public_profile", array($userIdToView));
+
+    if ($resultProyectos) {
+        while ($row = pg_fetch_assoc($resultProyectos)) {
+            $proyecto_item = []; // Crear un nuevo array para cada proyecto procesado
+            $proyecto_item['id_proyecto'] = $row['id_proyecto'];
+            $proyecto_item['nombre_proyecto'] = htmlspecialchars($row['nombre_proyecto'] ?? 'Proyecto sin título', ENT_QUOTES, 'UTF-8');
+
+            // Usar la columna 'logo' de la tabla 'proyectos' como imagen principal del proyecto
+            $proyecto_item['imagen_proyecto'] = !empty(trim($row['imagen_proyecto'])) ? htmlspecialchars(trim($row['imagen_proyecto']), ENT_QUOTES, 'UTF-8') : 'assets/img/examples/project_default.png'; // Un default diferente para proyectos
+
+            // Usar la columna 'resumen' y acortarla
+            $resumen_completo = $row['resumen'] ?? '';
+            $proyecto_item['resumen_acortado'] = htmlspecialchars(substr($resumen_completo, 0, 120) . (strlen($resumen_completo) > 120 ? '...' : ''), ENT_QUOTES, 'UTF-8');
+
+            // Usar la columna 'sector' como categoría
+            $proyecto_item['categoria_proyecto'] = htmlspecialchars($row['sector'] ?? 'General', ENT_QUOTES, 'UTF-8');
+
+            $proyectos[] = $proyecto_item;
+        }
+    } else {
+        error_log("Error al ejecutar la consulta de proyectos para usuario ID $userIdToView (public-profile): " . pg_last_error($conn));
     }
 }
 
+
 if ($conn) {
-    pg_close($conn);
+pg_close($conn);
 }
 ?>
 
@@ -88,12 +116,14 @@ if ($conn) {
         height: 300px;
         background-size: cover;
         background-position: center;
-        border-radius: 0.75rem 0.75rem 0 0; /* Kaiadmin usa .card con border-radius */
+        border-radius: 0.75rem 0.75rem 0 0;
+        /* Kaiadmin usa .card con border-radius */
         position: relative;
     }
 
     .public-profile-page .profile-avatar-wrapper {
-        margin-top: -75px; /* La mitad del tamaño del avatar grande */
+        margin-top: -75px;
+        /* La mitad del tamaño del avatar grande */
         text-align: center;
         position: relative;
         z-index: 10;
@@ -104,8 +134,9 @@ if ($conn) {
         height: 150px;
         border-radius: 50%;
         object-fit: cover;
-        border: 5px solid #fff; /* Borde blanco como en Kaiadmin */
-        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border: 5px solid #fff;
+        /* Borde blanco como en Kaiadmin */
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     }
 
     .public-profile-page .profile-main-info {
@@ -117,16 +148,19 @@ if ($conn) {
     .public-profile-page .profile-name {
         font-size: 2rem;
         font-weight: 600;
-        color: #333; /* O tu color de texto principal */
+        color: #333;
+        /* O tu color de texto principal */
         margin-bottom: 0.25rem;
     }
 
     .public-profile-page .profile-role,
     .public-profile-page .profile-location {
         font-size: 1rem;
-        color: #6c757d; /* text-muted de Bootstrap */
+        color: #6c757d;
+        /* text-muted de Bootstrap */
         margin-bottom: 0.25rem;
     }
+
     .public-profile-page .profile-location i {
         margin-right: 0.3rem;
     }
@@ -138,15 +172,17 @@ if ($conn) {
         margin: 0.5rem auto 1.5rem auto;
         line-height: 1.6;
     }
-    
+
     .public-profile-page .profile-social-links a {
         font-size: 1.5rem;
         margin: 0 0.5rem;
         color: #555;
         transition: color 0.3s ease;
     }
+
     .public-profile-page .profile-social-links a:hover {
-        color: var(--kai-primary); /* Usar variable de color primario del tema */
+        color: var(--kai-primary);
+        /* Usar variable de color primario del tema */
     }
 
     .public-profile-page .nav-pills .nav-link {
@@ -158,29 +194,37 @@ if ($conn) {
         margin-bottom: 1.5rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: none;
-        border-radius: 0.75rem; /* Consistente con Kaiadmin */
-        overflow: hidden; /* Para que la imagen no se salga del borde redondeado */
+        border-radius: 0.75rem;
+        /* Consistente con Kaiadmin */
+        overflow: hidden;
+        /* Para que la imagen no se salga del borde redondeado */
     }
+
     .public-profile-page .project-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
+
     .public-profile-page .project-card .card-img-top {
         height: 180px;
         object-fit: cover;
     }
+
     .public-profile-page .project-card .card-title {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
-     .public-profile-page .project-card .card-category {
+
+    .public-profile-page .project-card .card-category {
         font-size: 0.8rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--kai-primary); /* O el color que prefieras para la categoría */
+        color: var(--kai-primary);
+        /* O el color que prefieras para la categoría */
     }
+
     .public-profile-page .project-card .card-text {
         font-size: 0.9rem;
         color: #6c757d;
@@ -193,11 +237,13 @@ if ($conn) {
         margin-bottom: 1rem;
         font-size: 1rem;
     }
+
     .public-profile-page .contact-info-item i {
         font-size: 1.2rem;
         color: var(--kai-primary);
         margin-right: 1rem;
-        width: 20px; /* Alineación de iconos */
+        width: 20px;
+        /* Alineación de iconos */
         text-align: center;
     }
 
@@ -211,6 +257,7 @@ if ($conn) {
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -239,10 +286,10 @@ if ($conn) {
                     <p class="profile-location"><i class="fas fa-map-marker-alt"></i> <?php echo $emprendedor['municipio']; ?>, Nariño</p>
                 <?php endif; ?>
                 <p class="profile-short-bio">
-                    <?php 
+                    <?php
                     // Mostrar una versión más corta de la descripción aquí, si la descripción completa es muy larga
                     $descripcionCorta = strip_tags($emprendedor['descripcion_perfil']); // Quitar HTML por si acaso
-                    echo substr($descripcionCorta, 0, 180) . (strlen($descripcionCorta) > 180 ? '...' : ''); 
+                    echo substr($descripcionCorta, 0, 180) . (strlen($descripcionCorta) > 180 ? '...' : '');
                     ?>
                 </p>
                 <div class="profile-social-links mt-3">
@@ -276,7 +323,7 @@ if ($conn) {
                         <li class="nav-item">
                             <a class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false"><i class="fas fa-address-book me-1"></i>Contacto</a>
                         </li>
-                         <!-- <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" id="pills-gallery-tab" data-bs-toggle="pill" href="#pills-gallery" role="tab" aria-controls="pills-gallery" aria-selected="false"><i class="fas fa-images me-1"></i>Galería</a>
                         </li> -->
                     </ul>
@@ -301,37 +348,51 @@ if ($conn) {
                             -->
                         </div>
 
+
                         <!-- Pestaña: Proyectos -->
                         <div class="tab-pane fade" id="pills-projects" role="tabpanel" aria-labelledby="pills-projects-tab">
-                            <h4 class="card-title mb-4">Proyectos Destacados</h4>
+                            <h4 class="card-title mb-4">Proyectos de <?php echo explode(' ', $emprendedor['nombre_completo'])[0]; ?></h4>
                             <?php if (!empty($proyectos)): ?>
                                 <div class="row">
-                                    <?php foreach ($proyectos as $proyecto): ?>
-                                        <div class="col-md-6 col-lg-4">
-                                            <div class="card project-card">
-                                                <img src="<?php echo $proyecto['imagen_principal_url']; ?>" class="card-img-top" alt="Imagen de <?php echo $proyecto['nombre_proyecto']; ?>">
-                                                <div class="card-body">
-                                                    <p class="card-category text-info mb-1"><?php echo $proyecto['categoria']; ?></p>
-                                                    <h5 class="card-title">
-                                                        <a href="index.php?page=project-detail&id_proyecto=<?php echo $proyecto['id_proyecto']; ?>" class="text-dark stretched-link menu-link" data-page="project-detail&id_proyecto=<?php echo $proyecto['id_proyecto']; ?>">
-                                                            <?php echo $proyecto['nombre_proyecto']; ?>
+                                    <?php foreach ($proyectos as $proyecto_item): // Usar $proyecto_item para evitar conflicto 
+                                    ?>
+                                        <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+                                            <div class="card project-card h-100 shadow-sm"> <!-- Añadido shadow-sm y h-100 -->
+                                                <img src="<?php echo $proyecto_item['imagen_proyecto']; ?>" class="card-img-top" alt="Imagen de <?php echo $proyecto_item['nombre_proyecto']; ?>" style="height: 180px; object-fit: contain; padding:10px; background-color:#f8f9fa;">
+                                                <div class="card-body d-flex flex-column">
+                                                    <!-- Etiqueta de Sector/Categoría -->
+                                                    <span class="card-category mb-2">
+                                                        <?php echo $proyecto_item['categoria_proyecto']; ?>
+                                                    </span>
+                                                    <h5 class="card-title mt-1" style="min-height: 40px;"> <!-- Para alinear títulos de varias líneas -->
+                                                        <a href="#" class="text-dark menu-link" data-page="project-detail&id_proyecto=<?php echo $proyecto_item['id_proyecto']; ?>" title="<?php echo $proyecto_item['nombre_proyecto']; ?>">
+                                                            <?php echo $proyecto_item['nombre_proyecto']; ?>
                                                         </a>
                                                     </h5>
-                                                    <p class="card-text"><?php echo $proyecto['descripcion_corta']; ?></p>
+                                                    <p class="card-text text-muted small flex-grow-1">
+                                                        <?php echo $proyecto_item['resumen_acortado']; ?>
+                                                    </p>
+                                                    <a href="#" class="btn btn-sm btn-outline-primary btn-round mt-auto menu-link" data-page="project-detail&id_proyecto=<?php echo $proyecto_item['id_proyecto']; ?>">
+                                                        Ver Detalles <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                                <?php if (count($proyectos) > 5): // O si tienes una forma de saber si hay más proyectos ?>
-                                <div class="text-center mt-3">
-                                    <a href="index.php?page=all-projects-by-user&user_id=<?php echo $userIdToView; ?>" class="btn btn-outline-primary btn-round menu-link" data-page="all-projects-by-user&user_id=<?php echo $userIdToView; ?>">
-                                        Ver Todos los Proyectos
-                                    </a>
-                                </div>
+                                <?php
+                                // Lógica para "Ver Todos los Proyectos" (puede necesitar una cuenta total de proyectos)
+                                // Por ahora, si el LIMIT es 6 y se muestran 6, asumimos que podría haber más.
+                                if (count($proyectos) >= 6):
+                                ?>
+                                    <div class="text-center mt-3">
+                                        <a href="index.php?page=all-projects-by-user&user_id=<?php echo $userIdToView; ?>" class="btn btn-primary btn-round menu-link" data-page="all-projects-by-user&user_id=<?php echo $userIdToView; ?>">
+                                            Ver Todos los Proyectos de <?php echo explode(' ', $emprendedor['nombre_completo'])[0]; ?>
+                                        </a>
+                                    </div>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <p class="text-center text-muted">Este emprendedor aún no ha publicado proyectos.</p>
+                                <p class="text-center text-muted py-4">Este emprendedor aún no ha publicado proyectos visibles o que coincidan con los criterios.</p>
                             <?php endif; ?>
                         </div>
 
@@ -339,44 +400,44 @@ if ($conn) {
                         <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
                             <h4 class="card-title mb-3">Información de Contacto</h4>
                             <?php if (!empty($emprendedor['email'])): ?>
-                            <div class="contact-info-item">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo $emprendedor['email']; ?></span>
-                            </div>
+                                <div class="contact-info-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span><?php echo $emprendedor['email']; ?></span>
+                                </div>
                             <?php endif; ?>
                             <?php if (!empty($emprendedor['telefono'])): ?>
-                            <div class="contact-info-item">
-                                <i class="fas fa-phone"></i>
-                                <span><?php echo $emprendedor['telefono']; ?></span>
-                            </div>
+                                <div class="contact-info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span><?php echo $emprendedor['telefono']; ?></span>
+                                </div>
                             <?php endif; ?>
                             <?php if ($emprendedor['municipio'] !== 'Ubicación no definida'): ?>
-                            <div class="contact-info-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span><?php echo $emprendedor['municipio']; ?>, Nariño, Colombia</span>
-                            </div>
+                                <div class="contact-info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span><?php echo $emprendedor['municipio']; ?>, Nariño, Colombia</span>
+                                </div>
                             <?php endif; ?>
 
                             <?php if (!empty($emprendedor['red_facebook']) || !empty($emprendedor['red_linkedin']) || !empty($emprendedor['red_instagram'])): ?>
-                            <hr class="my-4">
-                            <h5 class="card-title mb-3">Redes Sociales</h5>
+                                <hr class="my-4">
+                                <h5 class="card-title mb-3">Redes Sociales</h5>
                                 <?php if (!empty($emprendedor['red_facebook'])): ?>
-                                <div class="contact-info-item">
-                                    <i class="fab fa-facebook"></i>
-                                    <a href="<?php echo $emprendedor['red_facebook']; ?>" target="_blank"><?php echo $emprendedor['red_facebook']; ?></a>
-                                </div>
+                                    <div class="contact-info-item">
+                                        <i class="fab fa-facebook"></i>
+                                        <a href="<?php echo $emprendedor['red_facebook']; ?>" target="_blank"><?php echo $emprendedor['red_facebook']; ?></a>
+                                    </div>
                                 <?php endif; ?>
                                 <?php if (!empty($emprendedor['red_linkedin'])): ?>
-                                <div class="contact-info-item">
-                                    <i class="fab fa-linkedin"></i>
-                                    <a href="<?php echo $emprendedor['red_linkedin']; ?>" target="_blank"><?php echo $emprendedor['red_linkedin']; ?></a>
-                                </div>
+                                    <div class="contact-info-item">
+                                        <i class="fab fa-linkedin"></i>
+                                        <a href="<?php echo $emprendedor['red_linkedin']; ?>" target="_blank"><?php echo $emprendedor['red_linkedin']; ?></a>
+                                    </div>
                                 <?php endif; ?>
                                 <?php if (!empty($emprendedor['red_instagram'])): ?>
-                                <div class="contact-info-item">
-                                    <i class="fab fa-instagram"></i>
-                                    <a href="<?php echo $emprendedor['red_instagram']; ?>" target="_blank"><?php echo $emprendedor['red_instagram']; ?></a>
-                                </div>
+                                    <div class="contact-info-item">
+                                        <i class="fab fa-instagram"></i>
+                                        <a href="<?php echo $emprendedor['red_instagram']; ?>" target="_blank"><?php echo $emprendedor['red_instagram']; ?></a>
+                                    </div>
                                 <?php endif; ?>
                             <?php endif; ?>
                             <!-- Botón para contactar (si tienes sistema de mensajería) -->
@@ -391,15 +452,15 @@ if ($conn) {
                         <div class="tab-pane fade" id="pills-gallery" role="tabpanel" aria-labelledby="pills-gallery-tab">
                             <h4 class="card-title mb-3">Galería de Imágenes</h4>
                             <div class="row image-gallery"> -->
-                                <!-- Ejemplo de item de galería, necesitarías un loop con las imágenes del emprendedor -->
-                                <!-- <a href="assets/img/examples/example1.jpeg" class="col-6 col-md-4 col-lg-3 mb-4">
+                        <!-- Ejemplo de item de galería, necesitarías un loop con las imágenes del emprendedor -->
+                        <!-- <a href="assets/img/examples/example1.jpeg" class="col-6 col-md-4 col-lg-3 mb-4">
                                     <img src="assets/img/examples/example1-300x300.jpg" class="img-fluid rounded shadow-sm">
                                 </a>
                                 <a href="assets/img/examples/example2.jpeg" class="col-6 col-md-4 col-lg-3 mb-4">
                                     <img src="assets/img/examples/example2-300x300.jpg" class="img-fluid rounded shadow-sm">
                                 </a> -->
-                                <!-- Añadir más imágenes -->
-                            <!-- </div>
+                        <!-- Añadir más imágenes -->
+                        <!-- </div>
                         </div>
                         -->
                     </div>
@@ -411,42 +472,42 @@ if ($conn) {
 
 <!-- Script específico para public-profile.php -->
 <script>
-function inicializarPaginaActual() {
-    console.log("PUBLIC-PROFILE.PHP: inicializarPaginaActual() ejecutada.");
+    function inicializarPaginaActual() {
+        console.log("PUBLIC-PROFILE.PHP: inicializarPaginaActual() ejecutada.");
 
-    // Inicializar Magnific Popup para la galería (si se usa la pestaña de galería)
-    if (document.querySelector('.image-gallery')) {
-        if (typeof $.fn.magnificPopup === 'function') {
-            $('.image-gallery').magnificPopup({
-                delegate: 'a', // child items selector, by clicking on it popup will open
-                type: 'image',
-                gallery: {
-                    enabled: true
-                },
-                mainClass: 'mfp-with-zoom', // Funciona con animate.css
-                zoom: {
-                    enabled: true,
-                    duration: 300,
-                    easing: 'ease-in-out',
-                    opener: function(openerElement) {
-                        return openerElement.is('img') ? openerElement : openerElement.find('img');
+        // Inicializar Magnific Popup para la galería (si se usa la pestaña de galería)
+        if (document.querySelector('.image-gallery')) {
+            if (typeof $.fn.magnificPopup === 'function') {
+                $('.image-gallery').magnificPopup({
+                    delegate: 'a', // child items selector, by clicking on it popup will open
+                    type: 'image',
+                    gallery: {
+                        enabled: true
+                    },
+                    mainClass: 'mfp-with-zoom', // Funciona con animate.css
+                    zoom: {
+                        enabled: true,
+                        duration: 300,
+                        easing: 'ease-in-out',
+                        opener: function(openerElement) {
+                            return openerElement.is('img') ? openerElement : openerElement.find('img');
+                        }
                     }
-                }
-            });
-            console.log("PUBLIC-PROFILE.PHP: Magnific Popup inicializado para .image-gallery");
-        } else {
-            console.warn("PUBLIC-PROFILE.PHP: Magnific Popup ($.fn.magnificPopup) no está definido. Asegúrate que el plugin esté cargado en index.php.");
+                });
+                console.log("PUBLIC-PROFILE.PHP: Magnific Popup inicializado para .image-gallery");
+            } else {
+                console.warn("PUBLIC-PROFILE.PHP: Magnific Popup ($.fn.magnificPopup) no está definido. Asegúrate que el plugin esté cargado en index.php.");
+            }
         }
+
+        // Activar tooltips si hay alguno en esta página
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // Podrías añadir más inicializaciones específicas si las necesitas, por ejemplo, para un mapa si muestras ubicación exacta.
+
+        console.log("PUBLIC-PROFILE.PHP: Fin de inicializarPaginaActual().");
     }
-
-    // Activar tooltips si hay alguno en esta página
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-
-    // Podrías añadir más inicializaciones específicas si las necesitas, por ejemplo, para un mapa si muestras ubicación exacta.
-
-    console.log("PUBLIC-PROFILE.PHP: Fin de inicializarPaginaActual().");
-}
 </script>

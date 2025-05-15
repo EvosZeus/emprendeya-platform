@@ -45,27 +45,56 @@ CREATE TABLE usuarios (
 CREATE INDEX idx_usuarios_email ON usuarios(email);
 CREATE INDEX idx_usuarios_rol ON usuarios(rol);
 
--- (Opcional pero altamente recomendado) Tabla para Municipios si quieres normalizar
--- CREATE TABLE departamentos (
---     id_departamento SERIAL PRIMARY KEY,
---     nombre_departamento VARCHAR(100) NOT NULL UNIQUE
--- );
 
--- INSERT INTO departamentos (nombre_departamento) VALUES ('Nariño'); -- Ejemplo
+CREATE TABLE proyectos (
+    id_proyecto SERIAL PRIMARY KEY, -- ID autoincremental y llave primaria
+    usuario_id INTEGER NOT NULL, -- Llave foránea al ID del usuario emprendedor
+    nombre_proyecto VARCHAR(255) NOT NULL,
+    logo VARCHAR(255), -- Ruta al archivo del logo
+    eslogan VARCHAR(255),
+    sector VARCHAR(100),
+    region VARCHAR(100),
+    ubicacion VARCHAR(255),
+    resumen TEXT,
+    problema TEXT,
+    solucion TEXT,
+    propuesta_valor TEXT,
+    mercado_objetivo TEXT,
+    tamano_mercado VARCHAR(100), -- Podría ser numérico si siempre es un número
+    competencia TEXT,
+    ventajas TEXT,
+    modelo_ingresos TEXT,
+    monto_inversion NUMERIC(15, 2), -- Para valores monetarios
+    valoracion NUMERIC(15, 2), -- Para valores monetarios
+    uso_fondos TEXT,
+    etapa VARCHAR(100), -- (Idea, Prototipo, MVP, Crecimiento, etc.)
+    hitos TEXT, -- Podría ser un JSON o TEXT si son múltiples
+    logros TEXT, -- Podría ser un JSON o TEXT
+    pitch_pdf VARCHAR(255), -- Ruta al archivo PDF
+    plan_negocios VARCHAR(255), -- Ruta al archivo PDF/DOC
+    sitio_web VARCHAR(255),
+    video_pitch VARCHAR(255), -- URL del video
+    demo_url VARCHAR(255),
+    contacto_nombre VARCHAR(150),
+    contacto_correo VARCHAR(150),
+    contacto_telefono VARCHAR(50),
+    linkedin VARCHAR(255),
+    fecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación automática
+    fecha_actualizacion TIMESTAMP WITHOUT TIME ZONE,
+    estado VARCHAR(50) DEFAULT 'pendiente', -- (pendiente, aprobado, rechazado, activo, finalizado)
+    es_destacado BOOLEAN DEFAULT FALSE,
+    -- Restricción de llave foránea (asumiendo que tu tabla de usuarios se llama 'usuarios' y su PK es 'id')
+    CONSTRAINT fk_usuario
+        FOREIGN KEY(usuario_id) 
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE -- Si se borra el usuario, se borran sus proyectos (o SET NULL si prefieres)
+);
 
--- CREATE TABLE municipios (
---     id_municipio SERIAL PRIMARY KEY,
---     nombre_municipio VARCHAR(100) NOT NULL,
---     id_departamento_fk INTEGER REFERENCES departamentos(id_departamento)
---     -- UNIQUE (nombre_municipio, id_departamento_fk) -- Para evitar duplicados por departamento
--- );
-
--- Si usas la tabla municipios, la columna 'municipio' en 'usuarios' cambiaría a:
--- id_municipio_fk INTEGER REFERENCES municipios(id_municipio),
-
--- Y tendrías que poblar la tabla municipios con los valores del select:
--- INSERT INTO municipios (nombre_municipio, id_departamento_fk) VALUES ('Albán', (SELECT id_departamento FROM departamentos WHERE nombre_departamento = 'Nariño'));
--- ... y así para todos los municipios.
+-- Crear índices para búsquedas comunes (opcional pero recomendado para rendimiento)
+CREATE INDEX idx_proyectos_usuario_id ON proyectos(usuario_id);
+CREATE INDEX idx_proyectos_sector ON proyectos(sector);
+CREATE INDEX idx_proyectos_etapa ON proyectos(etapa);
+CREATE INDEX idx_proyectos_nombre ON proyectos(nombre_proyecto); -- Para búsquedas por nombre
 
 
 
@@ -80,9 +109,6 @@ CREATE INDEX idx_usuarios_rol ON usuarios(rol);
 
 
 
-
-
-<!-- Script para cargar dinámicamente el contenido @renderbody -->
   <script>
     let paginaActualCargada = null; // Para evitar recargar la misma página
 
