@@ -62,51 +62,70 @@ if ($resultEmprendedor && pg_num_rows($resultEmprendedor) > 0) {
     exit;
 }
 
-// --- Obtener Proyectos del Emprendedor (Ejemplo) ---
-// --- Obtener Proyectos del Emprendedor ---
-$proyectos = []; // Inicializar el array
-// La conexión $conn ya debería estar abierta desde la consulta del perfil del emprendedor
 
-// Asegúrate de que los nombres de columna (logo, resumen, sector, estado) existan en tu tabla 'proyectos'
-$sql_proyectos = "SELECT id_proyecto, nombre_proyecto, resumen, logo AS imagen_proyecto, sector 
-                  FROM proyectos 
-                  WHERE usuario_id = $1 AND (estado = 'aprobado' OR estado = 'activo')
-                  ORDER BY fecha_creacion DESC LIMIT 6"; // Mostrar hasta 6 proyectos
+// --- OBTENER PROYECTOS DEL EMPRENDEDOR (MODIFICADO) ---
+$proyectos = [];
+if (isset($conn) && $conn && isset($userIdToView)) { // $userIdToView es el ID del perfil que se está viendo
+    $sql_proyectos = "SELECT 
+                        p.id_proyecto, 
+                        p.nombre_proyecto, 
+                        p.resumen,         -- Para resumen acortado
+                        p.eslogan,         -- Para mostrar eslogan
+                        p.logo AS imagen_proyecto, 
+                        p.sector AS categoria_proyecto, -- Alias definido aquí
+                        p.etapa,
+                        p.monto_inversion,
+                        p.fecha_creacion,
+                        p.contacto_nombre AS contacto_proyecto_nombre,  -- Contacto específico del proyecto
+                        p.contacto_correo AS contacto_proyecto_email,  -- Contacto específico del proyecto
+                        u.nombre_completo AS nombre_creador,            -- Nombre del creador del proyecto
+                        u.email AS email_creador                       -- Email del creador (fallback)
+                      FROM proyectos p
+                      JOIN usuarios u ON p.usuario_id = u.id
+                      WHERE p.usuario_id = $1 AND (p.estado ILIKE 'aprobado' OR p.estado ILIKE 'activo')
+                      ORDER BY p.fecha_creacion DESC LIMIT 6"; 
 
-$stmtProyectos = pg_prepare($conn, "get_emprendedor_proyectos_public_profile", $sql_proyectos); // Nuevo nombre para la sentencia preparada
+    $stmtProyectos = pg_prepare($conn, "get_public_profile_user_projects_v3", $sql_proyectos);
 
-if (!$stmtProyectos) {
-    error_log("Error al preparar get_emprendedor_proyectos_public_profile: " . pg_last_error($conn));
-    // No necesitas un 'exit' aquí, la página puede continuar mostrando el perfil sin proyectos si falla la query
-} else {
-    $resultProyectos = pg_execute($conn, "get_emprendedor_proyectos_public_profile", array($userIdToView));
-
-    if ($resultProyectos) {
-        while ($row = pg_fetch_assoc($resultProyectos)) {
-            $proyecto_item = []; // Crear un nuevo array para cada proyecto procesado
-            $proyecto_item['id_proyecto'] = $row['id_proyecto'];
-            $proyecto_item['nombre_proyecto'] = htmlspecialchars($row['nombre_proyecto'] ?? 'Proyecto sin título', ENT_QUOTES, 'UTF-8');
-
-            // Usar la columna 'logo' de la tabla 'proyectos' como imagen principal del proyecto
-            $proyecto_item['imagen_proyecto'] = !empty(trim($row['imagen_proyecto'])) ? htmlspecialchars(trim($row['imagen_proyecto']), ENT_QUOTES, 'UTF-8') : 'assets/img/examples/project_default.png'; // Un default diferente para proyectos
-
-            // Usar la columna 'resumen' y acortarla
-            $resumen_completo = $row['resumen'] ?? '';
-            $proyecto_item['resumen_acortado'] = htmlspecialchars(substr($resumen_completo, 0, 120) . (strlen($resumen_completo) > 120 ? '...' : ''), ENT_QUOTES, 'UTF-8');
-
-            // Usar la columna 'sector' como categoría
-            $proyecto_item['categoria_proyecto'] = htmlspecialchars($row['sector'] ?? 'General', ENT_QUOTES, 'UTF-8');
-
-            $proyectos[] = $proyecto_item;
-        }
+    if (!$stmtProyectos) {
+        error_log("PUBLIC-PROFILE.PHP: Error preparando consulta de proyectos: " . pg_last_error($conn));
     } else {
-        error_log("Error al ejecutar la consulta de proyectos para usuario ID $userIdToView (public-profile): " . pg_last_error($conn));
+        $resultProyectos = pg_execute($conn, "get_public_profile_user_projects_v3", array($userIdToView));
+        if ($resultProyectos) {
+            while ($row = pg_fetch_assoc($resultProyectos)) {
+                $proyecto_item = [];
+                $proyecto_item['id_proyecto'] = $row['id_proyecto'];
+                $proyecto_item['nombre_proyecto'] = htmlspecialchars(trim($row['nombre_proyecto'] ?? 'Proyecto sin título'), ENT_QUOTES, 'UTF-8');
+                $proyecto_item['imagen_proyecto'] = !empty(trim($row['imagen_proyecto'] ?? '')) ? htmlspecialchars(trim($row['imagen_proyecto'] ?? ''), ENT_QUOTES, 'UTF-8') : 'assets/img/examples/project_default.png';
+                // CORRECCIÓN AQUÍ: Usar el alias 'categoria_proyecto' de la consulta
+                $proyecto_item['categoria_proyecto'] = htmlspecialchars(trim($row['categoria_proyecto'] ?? 'General'), ENT_QUOTES, 'UTF-8'); 
+                $proyecto_item['etapa'] = htmlspecialchars(trim($row['etapa'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+
+                $eslogan_raw = trim($row['eslogan'] ?? '');
+                $resumen_raw = trim($row['resumen'] ?? '');
+                $proyecto_item['display_text'] = !empty($eslogan_raw) ? '"' . htmlspecialchars($eslogan_raw, ENT_QUOTES, 'UTF-8') . '"' : (!empty($resumen_raw) ? htmlspecialchars(substr($resumen_raw, 0, 100) . (strlen($resumen_raw) > 100 ? '...' : ''), ENT_QUOTES, 'UTF-8') : 'Descripción no disponible.');
+
+                $monto_val = $row['monto_inversion'] ?? null;
+                $proyecto_item['monto_inversion_formateado'] = !is_null($monto_val) && is_numeric($monto_val) ? '$' . number_format((float)$monto_val, 0, ',', '.') : 'No especificado';
+                $proyecto_item['progreso_simulado'] = rand(20,95);
+                
+                $fecha_creacion_raw = $row['fecha_creacion'] ?? null;
+                if ($fecha_creacion_raw) {
+                    try { $date = new DateTime($fecha_creacion_raw); $proyecto_item['fecha_formateada'] = $date->format('d M, Y');}
+                    catch (Exception $e) { $proyecto_item['fecha_formateada'] = 'Fecha Inválida'; }
+                } else { $proyecto_item['fecha_formateada'] = 'N/A'; }
+
+                $proyecto_item['nombre_creador'] = htmlspecialchars(trim($row['nombre_creador'] ?? 'Anónimo'), ENT_QUOTES, 'UTF-8');
+                // Para el botón "Contactar" de la tarjeta del proyecto
+                $proyecto_item['contacto_proyecto_nombre_display'] = htmlspecialchars(trim($row['contacto_proyecto_nombre'] ?? $row['nombre_creador'] ?? 'Equipo del Proyecto'), ENT_QUOTES, 'UTF-8');
+                $proyecto_item['contacto_proyecto_email_display'] = htmlspecialchars(trim($row['contacto_proyecto_email'] ?? $row['email_creador'] ?? ''), ENT_QUOTES, 'UTF-8');
+                
+                $proyectos[] = $proyecto_item;
+            }
+        } else {
+            error_log("PUBLIC-PROFILE.PHP: Error ejecutando consulta de proyectos para user ID {$userIdToView}: " . pg_last_error($conn));
+        }
     }
-}
-
-
-if ($conn) {
-pg_close($conn);
 }
 ?>
 
@@ -188,6 +207,9 @@ pg_close($conn);
     .public-profile-page .nav-pills .nav-link {
         font-weight: 500;
     }
+    
+   
+
 
     /* Estilos para las tarjetas de proyecto */
     .public-profile-page .project-card {
@@ -285,13 +307,7 @@ pg_close($conn);
                 <?php if ($emprendedor['municipio'] !== 'Ubicación no definida'): ?>
                     <p class="profile-location"><i class="fas fa-map-marker-alt"></i> <?php echo $emprendedor['municipio']; ?>, Nariño</p>
                 <?php endif; ?>
-                <p class="profile-short-bio">
-                    <?php
-                    // Mostrar una versión más corta de la descripción aquí, si la descripción completa es muy larga
-                    $descripcionCorta = strip_tags($emprendedor['descripcion_perfil']); // Quitar HTML por si acaso
-                    echo substr($descripcionCorta, 0, 180) . (strlen($descripcionCorta) > 180 ? '...' : '');
-                    ?>
-                </p>
+                
                 <div class="profile-social-links mt-3">
                     <?php if (!empty($emprendedor['red_facebook'])): ?>
                         <a href="<?php echo $emprendedor['red_facebook']; ?>" target="_blank" title="Facebook"><i class="fab fa-facebook-square"></i></a>
@@ -318,10 +334,24 @@ pg_close($conn);
                             <a class="nav-link active" id="pills-about-tab" data-bs-toggle="pill" href="#pills-about" role="tab" aria-controls="pills-about" aria-selected="true"><i class="fas fa-user-alt me-1"></i>Sobre Mí</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-projects-tab" data-bs-toggle="pill" href="#pills-projects" role="tab" aria-controls="pills-projects" aria-selected="false"><i class="fas fa-project-diagram me-1"></i>Proyectos</a>
+                            <a class="nav-link" id="pills-projects-tab-link" data-bs-toggle="pill" href="#pills-projects" role="tab" aria-controls="pills-projects" aria-selected="false"><i class="fas fa-project-diagram me-1"></i>Proyectos</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false"><i class="fas fa-address-book me-1"></i>Contacto</a>
+                        </li>
+                        <!-- BOTÓN CHAT AÑADIDO -->
+                                                  
+                        <li class="nav-item">
+                            <a class=" nav-link btn-success" 
+                               href="#"
+                               data-bs-toggle="modal"
+                               data-bs-target="#chatModal"
+                               data-recipient-name="<?php echo htmlspecialchars($emprendedor['nombre_completo'], ENT_QUOTES, 'UTF-8'); ?>"
+                               data-recipient-id="<?php echo htmlspecialchars($userIdToView, ENT_QUOTES, 'UTF-8'); ?>"
+                               data-recipient-email="<?php echo htmlspecialchars($emprendedor['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                               title="Chatear con <?php echo htmlspecialchars($emprendedor['nombre_completo'], ENT_QUOTES, 'UTF-8'); ?>">
+                               <i class="fas fa-comments me-1"></i> CHAT
+                            </a>
                         </li>
                         <!-- <li class="nav-item">
                             <a class="nav-link" id="pills-gallery-tab" data-bs-toggle="pill" href="#pills-gallery" role="tab" aria-controls="pills-gallery" aria-selected="false"><i class="fas fa-images me-1"></i>Galería</a>
@@ -336,63 +366,63 @@ pg_close($conn);
                             <div class="text-muted lh-lg">
                                 <?php echo $emprendedor['descripcion_perfil']; ?>
                             </div>
-                            <!-- Podrías añadir secciones como Habilidades, Experiencia, Educación aquí -->
-                            <!-- Ejemplo Habilidades -->
-                            <!--
-                            <hr class="my-4">
-                            <h5 class="card-title mb-3">Habilidades Principales</h5>
-                            <span class="badge bg-primary text-white me-1 mb-1 p-2">Desarrollo Web</span>
-                            <span class="badge bg-success text-white me-1 mb-1 p-2">Marketing Digital</span>
-                            <span class="badge bg-info text-white me-1 mb-1 p-2">Gestión de Proyectos</span>
-                            <span class="badge bg-warning text-dark me-1 mb-1 p-2">Diseño Gráfico</span>
-                            -->
+                            
                         </div>
 
-
-                        <!-- Pestaña: Proyectos -->
-                        <div class="tab-pane fade" id="pills-projects" role="tabpanel" aria-labelledby="pills-projects-tab">
+                        <!-- CORRECCIÓN: ID del panel y aria-labelledby -->
+                        <div class="tab-pane fade" id="pills-projects" role="tabpanel" aria-labelledby="pills-projects-tab-link">
                             <h4 class="card-title mb-4">Proyectos de <?php echo explode(' ', $emprendedor['nombre_completo'])[0]; ?></h4>
                             <?php if (!empty($proyectos)): ?>
                                 <div class="row">
-                                    <?php foreach ($proyectos as $proyecto_item): // Usar $proyecto_item para evitar conflicto 
-                                    ?>
+                                    <?php foreach ($proyectos as $proyecto_item): ?>
                                         <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
-                                            <div class="card project-card h-100 shadow-sm"> <!-- Añadido shadow-sm y h-100 -->
+                                            <div class="card project-card h-100 shadow-sm">
                                                 <img src="<?php echo $proyecto_item['imagen_proyecto']; ?>" class="card-img-top" alt="Imagen de <?php echo $proyecto_item['nombre_proyecto']; ?>" style="height: 180px; object-fit: contain; padding:10px; background-color:#f8f9fa;">
-                                                <div class="card-body d-flex flex-column">
-                                                    <!-- Etiqueta de Sector/Categoría -->
-                                                    <span class="card-category mb-2">
-                                                        <?php echo $proyecto_item['categoria_proyecto']; ?>
-                                                    </span>
-                                                    <h5 class="card-title mt-1" style="min-height: 40px;"> <!-- Para alinear títulos de varias líneas -->
-                                                        <a href="#" class="text-dark menu-link" data-page="project-detail&id_proyecto=<?php echo $proyecto_item['id_proyecto']; ?>" title="<?php echo $proyecto_item['nombre_proyecto']; ?>">
+                                                <div class="card-body d-flex flex-column p-3">
+                                                    <span class="badge bg-info text-white mb-2 align-self-start" style="font-size: 0.75rem;"><?php echo $proyecto_item['categoria_proyecto']; ?></span>
+                                                    <h5 class="card-title mt-1" style="min-height: 40px;">
+                                                        <!-- Botón/Enlace VER PROYECTO (usa menu-link) -->
+                                                        <a href="#" class="text-dark menu-link stretched-link"
+                                                            data-page="project-detail&id_proyecto=<?php echo $proyecto_item['id_proyecto']; ?>"
+                                                            title="Ver detalles de <?php echo $proyecto_item['nombre_proyecto']; ?>">
                                                             <?php echo $proyecto_item['nombre_proyecto']; ?>
                                                         </a>
                                                     </h5>
-                                                    <p class="card-text text-muted small flex-grow-1">
-                                                        <?php echo $proyecto_item['resumen_acortado']; ?>
+                                                    <p class="card-text text-muted small mb-1" style="font-size:0.8rem;">Etapa: <?php echo $proyecto_item['etapa']; ?></p>
+                                                    <p class="card-text text-muted small flex-grow-1 fst-italic" style="font-size:0.85rem; min-height: 50px;">
+                                                        <?php echo $proyecto_item['display_text']; // Eslogan o resumen acortado 
+                                                        ?>
                                                     </p>
-                                                    <a href="#" class="btn btn-sm btn-outline-primary btn-round mt-auto menu-link" data-page="project-detail&id_proyecto=<?php echo $proyecto_item['id_proyecto']; ?>">
-                                                        Ver Detalles <i class="fas fa-arrow-right ms-1"></i>
-                                                    </a>
+                                                    <p class="card-text mb-3"><small class="text-muted">Meta: <?php echo $proyecto_item['monto_inversion_formateado']; ?></small></p>
+
+                                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                                        <a href="#" class="btn btn-sm btn-primary btn-round menu-link"
+                                                            data-page="project-detail&id_proyecto=<?php echo $proyecto_item['id_proyecto']; ?>">
+                                                            <i class="fas fa-eye me-1"></i> Ver Proyecto
+                                                        </a>
+                                                        <!-- Botón CONTACTAR (abre el modal #chatModal que ya tienes) -->
+                                                        <button type="button" class="btn btn-sm btn-outline-success btn-round btn-chat-on-public-profile"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#chatModal"
+                                                            data-project-name="<?php echo htmlspecialchars($proyecto_item['nombre_proyecto'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-contact-name="<?php echo $proyecto_item['contacto_proyecto_nombre_display']; ?>"
+                                                            data-owner-email="<?php echo $proyecto_item['contacto_proyecto_email_display']; ?>"
+                                                            data-project-id="<?php echo $proyecto_item['id_proyecto']; ?>">
+                                                            <i class="fas fa-comments me-1"></i> Contactar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer bg-lightsmall border-top-0 pt-2 pb-2 px-3 text-center">
+                                                    <small class="text-muted d-block" style="font-size:0.75rem;"><i class="fas fa-user me-1"></i>Por: <?php echo $proyecto_item['nombre_creador']; ?></small>
+                                                    <!-- No tenemos fecha del proyecto aquí, pero podrías añadirla si la seleccionas -->
                                                 </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                                <?php
-                                // Lógica para "Ver Todos los Proyectos" (puede necesitar una cuenta total de proyectos)
-                                // Por ahora, si el LIMIT es 6 y se muestran 6, asumimos que podría haber más.
-                                if (count($proyectos) >= 6):
-                                ?>
-                                    <div class="text-center mt-3">
-                                        <a href="index.php?page=all-projects-by-user&user_id=<?php echo $userIdToView; ?>" class="btn btn-primary btn-round menu-link" data-page="all-projects-by-user&user_id=<?php echo $userIdToView; ?>">
-                                            Ver Todos los Proyectos de <?php echo explode(' ', $emprendedor['nombre_completo'])[0]; ?>
-                                        </a>
-                                    </div>
-                                <?php endif; ?>
+                                <?php if (count($proyectos) >= 6): /* ... tu lógica para "Ver todos" ... */ endif; ?>
                             <?php else: ?>
-                                <p class="text-center text-muted py-4">Este emprendedor aún no ha publicado proyectos visibles o que coincidan con los criterios.</p>
+                                <p class="text-center text-muted py-4">Este emprendedor aún no ha publicado proyectos visibles.</p>
                             <?php endif; ?>
                         </div>
 
@@ -474,6 +504,138 @@ pg_close($conn);
 <script>
     function inicializarPaginaActual() {
         console.log("PUBLIC-PROFILE.PHP: inicializarPaginaActual() ejecutada.");
+
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // --- Lógica para el Modal de Contacto Genérico (#chatModal) ---
+        // Este listener se adjunta al documento para capturar clics en botones que abren el modal,
+        // ya sea para contactar al emprendedor directamente desde su perfil o sobre un proyecto específico.
+
+        // Listener para el botón de chat/contacto en el perfil del EMPRENDEDOR (incluye el nuevo botón en la barra de pestañas)
+        $('.btn-chat-emprendedor').off('click.contactEmprendedor').on('click.contactEmprendedor', function() {
+            const recipientName = $(this).data('recipient-name');
+            const recipientId = $(this).data('recipient-id'); // ID del emprendedor (userIdToView)
+            const recipientEmail = $(this).data('recipient-email');
+
+            $('#chatModalTitle').text('Enviar Mensaje a ' + recipientName); // Asume que el modal tiene un título con este ID
+            // Poblar campos ocultos en el formulario del modal #chatModal si los tienes
+            // Ejemplo:
+            // $('#chatModalForm #chatRecipientId').val(recipientId);
+            // $('#chatModalForm #chatRecipientEmail').val(recipientEmail);
+            // $('#chatModalForm #chatContextProjectId').val(''); // No hay contexto de proyecto aquí
+
+            // Limpiar campos del mensaje
+            $('#chatModal').find('textarea').val(''); // Asume que el textarea está en #chatModal
+
+            // Obtener y pre-llenar info del remitente (usuario logueado)
+            const senderNameFromSession = "<?php echo htmlspecialchars($_SESSION['user_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+            const senderEmailFromSession = "<?php echo htmlspecialchars($_SESSION['user_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+            // $('#chatModalForm #chatSenderName').val(senderNameFromSession); // Si tienes estos campos
+            // $('#chatModalForm #chatSenderEmail').val(senderEmailFromSession);
+
+            console.log(`PUBLIC-PROFILE.PHP: Abriendo chat modal para EMPRENDEDOR: ${recipientName}, ID: ${recipientId}, Email: ${recipientEmail}`);
+        });
+
+        // Listener para los botones de chat/contacto en las TARJETAS DE PROYECTO
+        // CORRECCIÓN: Selector del contenedor de pestaña y clase del botón
+        $('#pills-projects').off('click.contactProjectCard').on('click.contactProjectCard', '.btn-chat-on-public-profile', function() {
+            const projectName = $(this).data('project-name');
+            const contactName = $(this).data('contact-name'); // Nombre de contacto del proyecto
+            const ownerEmail = $(this).data('owner-email'); // Email de contacto del proyecto
+            const projectIdContext = $(this).data('project-id');
+
+            $('#chatModalTitle').text('Contactar sobre: ' + projectName); // Asume que el modal tiene un título con este ID
+            // Poblar campos ocultos en el formulario del modal #chatModal
+            // Ejemplo:
+            // $('#chatModalForm #chatRecipientId').val(''); // Puede que no necesites el ID del dueño aquí si envías al email del proyecto
+            // $('#chatModalForm #chatRecipientEmail').val(ownerEmail);
+            // $('#chatModalForm #chatContextProjectId').val(projectIdContext);
+
+            // Limpiar campos del mensaje
+            $('#chatModal').find('textarea').val(''); // Asume que el textarea está en #chatModal
+
+            // Obtener y pre-llenar info del remitente
+            const senderNameFromSession = "<?php echo htmlspecialchars($_SESSION['user_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+            const senderEmailFromSession = "<?php echo htmlspecialchars($_SESSION['user_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+            // $('#chatModalForm #chatSenderName').val(senderNameFromSession);
+            // $('#chatModalForm #chatSenderEmail').val(senderEmailFromSession);
+
+            console.log(`PUBLIC-PROFILE.PHP: Abriendo chat modal para PROYECTO: ${projectName}, Contacto: ${contactName}, Email: ${ownerEmail}, ProyectoID: ${projectIdContext}`);
+        });
+
+
+        // Listener para el envío del formulario del modal #chatModal
+        // Este listener debería ser ÚNICO en toda tu aplicación si el ID del form es siempre el mismo
+        // o asegúrate de que se adjunte correctamente y una sola vez.
+        const $chatModalForm = $('#chatModal').find('form'); // Encuentra el form dentro de #chatModal
+        if ($chatModalForm.length && (typeof $._data === 'function' ? !$._data($chatModalForm[0], 'events')?.submit : true)) {
+            $chatModalForm.off('submit.publicProfileChat').on('submit.publicProfileChat', function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                const $submitButton = $(this).find('button[type="submit"]');
+
+                console.log("PUBLIC-PROFILE.PHP: Enviando mensaje desde #chatModal (simulación)... Datos:", formData);
+                $submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Enviando...');
+
+                // AQUÍ VA TU LLAMADA AJAX A UN SCRIPT PHP QUE ENVÍE EL EMAIL/MENSAJE
+                // Ejemplo:
+                /*
+                $.ajax({
+                    url: 'backend-php/send_chat_message.php', // Necesitas crear este script
+                    type: 'POST',
+                    data: formData, // Incluiría los campos ocultos con recipient_email, project_id, etc.
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            showAlertGloballyPublicProfile('success', '¡Mensaje Enviado!', response.message || 'Tu mensaje ha sido enviado.');
+                            bootstrap.Modal.getInstance(document.getElementById('chatModal'))?.hide();
+                        } else {
+                            showAlertGloballyPublicProfile('error', 'Error', response.message || 'No se pudo enviar el mensaje.');
+                        }
+                    },
+                    error: function() { showAlertGloballyPublicProfile('error', 'Error', 'Error de conexión al enviar el mensaje.'); },
+                    complete: function() { $submitButton.prop('disabled', false).html('Enviar'); }
+                });
+                */
+                // Simulación por ahora:
+                setTimeout(function() {
+                    if (typeof showAlertGloballyPublicProfile === 'function') { // Verifica si la func de alerta existe
+                        showAlertGloballyPublicProfile('success', 'Simulación', 'Mensaje enviado (simulado). El backend para esto debe ser implementado.');
+                    } else {
+                        alert('Mensaje enviado (simulado).');
+                    }
+                    bootstrap.Modal.getInstance(document.getElementById('chatModal'))?.hide();
+                    $submitButton.prop('disabled', false).html('Enviar');
+                }, 1000);
+            });
+        }
+
+        // Función de alerta específica para esta página para evitar conflictos si es necesario
+        function showAlertGloballyPublicProfile(type, title, message) {
+            if (typeof swal === 'function') {
+                swal({
+                    icon: type,
+                    title: title,
+                    text: message,
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    timer: type === 'success' ? 2500 : 4000
+                });
+            } else {
+                console.warn("SweetAlert (swal) no está definido en public-profile. Usando alert().");
+                alert(title + ": " + message);
+            }
+        }
 
         // Inicializar Magnific Popup para la galería (si se usa la pestaña de galería)
         if (document.querySelector('.image-gallery')) {

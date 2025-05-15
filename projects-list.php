@@ -23,7 +23,7 @@ $es_administrador_pl = (strcasecmp($rol_usuario_actual_pl, 'Administrador') == 0
         
             <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="card-title">Listado de Proyectos</h4>
+                     <h3 class="fw-bold mb-1 text-primary"><i class="fas fa-star me-2"></i> Listado de Proyectos</h3>
                     <p class="card-category mb-0">Descubre oportunidades e iniciativas innovadoras.</p>
                 </div>
                 <?php if ($es_administrador_pl): // Usar la variable con sufijo _pl 

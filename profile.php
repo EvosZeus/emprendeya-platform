@@ -113,6 +113,64 @@ $municipios_lista = [
 // ---------------------------------------------------------------------
 // FIN DEL BLOQUE DE SESIÓN
 // ---------------------------------------------------------------------
+
+// --- INICIO: OBTENER PROYECTOS DEL USUARIO ACTUAL (SI ES EMPRENDEDOR) ---
+require_once __DIR__ . '/config/database.php'; // Asegúrate que esta ruta sea correcta
+$mis_proyectos = [];
+
+// Solo intentar cargar proyectos si la conexión existe y el usuario es Emprendedor
+if (isset($conn) && $conn && isset($sesion_user_id) && strcasecmp($sesion_rol_usuario, 'Emprendedor') == 0) {
+    $usuario_actual_id_para_proyectos = $sesion_user_id;
+
+    // Seleccionar los campos necesarios para la tabla de resumen en el perfil
+    $sql_mis_proyectos = "SELECT id_proyecto, nombre_proyecto, sector, etapa, estado, fecha_creacion 
+                          FROM proyectos 
+                          WHERE usuario_id = $1 
+                          ORDER BY fecha_creacion DESC";
+
+    $stmt_mis_proyectos = pg_prepare($conn, "get_user_projects_for_profile_page_v3", $sql_mis_proyectos); // Nuevo nombre por si cambia la query
+
+    if (!$stmt_mis_proyectos) {
+        error_log("PROFILE.PHP: Error al preparar consulta 'get_user_projects_for_profile_page_v3': " . pg_last_error($conn));
+    } else {
+        $result_mis_proyectos = pg_execute($conn, "get_user_projects_for_profile_page_v3", array($usuario_actual_id_para_proyectos));
+        if ($result_mis_proyectos) {
+            while ($row = pg_fetch_assoc($result_mis_proyectos)) {
+                $proyecto_item = [];
+                $proyecto_item['id_proyecto'] = $row['id_proyecto']; // Ya es numérico
+                $proyecto_item['nombre_proyecto'] = htmlspecialchars(trim($row['nombre_proyecto'] ?? 'Sin Título'), ENT_QUOTES, 'UTF-8');
+                $proyecto_item['sector'] = htmlspecialchars(trim($row['sector'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+                $proyecto_item['etapa'] = htmlspecialchars(trim($row['etapa'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+                $proyecto_item['estado'] = htmlspecialchars(trim($row['estado'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+
+                $fecha_creacion_raw_proyecto = $row['fecha_creacion'] ?? null;
+                if ($fecha_creacion_raw_proyecto) {
+                    try {
+                        $date = new DateTime($fecha_creacion_raw_proyecto);
+                        $proyecto_item['fecha_formateada'] = $date->format('d/m/Y'); // Formato corto para tabla
+                    } catch (Exception $e) {
+                        $proyecto_item['fecha_formateada'] = 'Fecha Inválida';
+                        error_log("PROFILE.PHP: Error formateando fecha_creacion de proyecto ID {$row['id_proyecto']}: " . $e->getMessage());
+                    }
+                } else {
+                    $proyecto_item['fecha_formateada'] = 'N/A';
+                }
+                $mis_proyectos[] = $proyecto_item;
+            }
+        } else {
+            error_log("PROFILE.PHP: Error al ejecutar consulta 'get_user_projects_for_profile_page_v3' para user ID {$usuario_actual_id_para_proyectos}: " . pg_last_error($conn));
+        }
+    }
+} else if (strcasecmp($sesion_rol_usuario, 'Emprendedor') == 0 && (!isset($conn) || !$conn)) {
+    error_log("PROFILE.PHP: No se pudo conectar a la base de datos para obtener los proyectos del usuario.");
+    // $mis_proyectos permanecerá vacío, el HTML mostrará el mensaje de "no hay proyectos".
+}
+
+// NO cierres $conn aquí si profile.php es incluido por index.php.
+// index.php debería manejar el cierre de la conexión al final de su ejecución.
+// Si profile.php fuera un script completamente independiente que abre $conn, entonces sí deberías cerrarlo.
+// if (isset($conn) && $conn && $conexion_abierta_localmente_en_profile) { pg_close($conn); }
+// --- FIN: OBTENER PROYECTOS DEL USUARIO ACTUAL ---
 ?>
 
 <script>
@@ -334,19 +392,14 @@ $municipios_lista = [
                                     aria-controls="emprendeya-pills-edit-profile" aria-selected="false"><i
                                         class="fas fa-edit me-1"></i>Editar Información</a>
                             </li>
+
                             <li class="nav-item">
                                 <a class="nav-link" id="emprendeya-pills-change-password-tab" data-bs-toggle="pill"
                                     href="#emprendeya-pills-change-password" role="tab"
                                     aria-controls="emprendeya-pills-change-password" aria-selected="false"><i
                                         class="fas fa-key me-1"></i>Contraseña</a>
                             </li>
-                            <?php if ($sesion_rol_usuario === 'Emprendedor'): ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="emprendeya-pills-projects-tab" data-bs-toggle="pill"
-                                        href="#emprendeya-pills-projects" role="tab" aria-controls="emprendeya-pills-projects"
-                                        aria-selected="false"><i class="fas fa-project-diagram me-1"></i>Mis Proyectos</a>
-                                </li>
-                            <?php endif; ?>
+
                             <li class="nav-item">
                                 <a class="nav-link" id="emprendeya-pills-settings-tab" data-bs-toggle="pill"
                                     href="#emprendeya-pills-settings" role="tab" aria-controls="emprendeya-pills-settings"
@@ -490,46 +543,7 @@ $municipios_lista = [
                                 </form>
                             </div>
 
-                            <?php if ($sesion_rol_usuario === 'Emprendedor'): ?>
-                                <div class="tab-pane fade" id="emprendeya-pills-projects" role="tabpanel" aria-labelledby="emprendeya-pills-projects-tab">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="card-title">Mis Proyectos</h4>
-                                        <a href="crear_proyecto.php" class="btn btn-primary btn-round btn-sm">
-                                            <span class="btn-label"><i class="fa fa-plus"></i></span> Nuevo Proyecto
-                                        </a>
-                                    </div>
-                                    <div class="card-category mb-3">Aquí puedes ver y gestionar tus emprendimientos.</div>
-                                    <div class="row">
-                                        <div class="col-md-6 col-lg-4">
-                                            <div class="card card-post card-round">
-                                                <img class="card-img-top" src="assets/img/examples/example_project1.jpg" alt="Imagen Proyecto">
-                                                <div class="card-body">
-                                                    <div class="d-flex">
-                                                        <div class="avatar">
-                                                            <img src="<?php echo $sesion_foto_perfil_url; ?>" alt="..." class="avatar-img rounded-circle">
-                                                        </div>
-                                                        <div class="info-post ms-2">
-                                                            <p class="username"><?php echo $sesion_nombre_completo; ?></p>
-                                                            <p class="date text-muted">Iniciado: 10 Feb 2024</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="separator-solid"></div>
-                                                    <p class="card-category text-info mb-1"><a href="#">Tecnología</a></p>
-                                                    <h3 class="card-title"><a href="#">Plataforma de E-learning para Nariño</a></h3>
-                                                    <p class="card-text">Desarrollo de una plataforma para ofrecer cursos online accesibles a la comunidad.</p>
-                                                    <div class="mt-2">
-                                                        <small class="text-muted">Progreso: 60%</small>
-                                                        <div class="progress progress-sm mt-1">
-                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-                                                    </div>
-                                                    <a href="#" class="btn btn-secondary btn-sm btn-border btn-round mt-3">Ver Detalles</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
+
 
                             <div class="tab-pane fade" id="emprendeya-pills-settings" role="tabpanel" aria-labelledby="emprendeya-pills-settings-tab">
                                 <h4 class="card-title mb-3">Configuración de la Cuenta</h4>
@@ -564,10 +578,193 @@ $municipios_lista = [
                 </div>
             </div>
         </div>
+
+
+        <?php
+        // Solo mostrar esta sección si el usuario es Emprendedor y tiene proyectos, o siempre si es Emprendedor
+        if (strcasecmp($sesion_rol_usuario, 'Emprendedor') == 0):
+        ?>
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card card-round shadow-sm">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h4 class="card-title"><i class="fas fa-project-diagram me-2"></i>Mis Proyectos</h4>
+                                <a href="#" class="btn btn-primary btn-round btn-sm menu-link" data-page="public-project">
+                                    <span class="btn-label"><i class="fa fa-plus"></i></span> Publicar Nuevo Proyecto
+                                </a>
+                            </div>
+                            <p class="card-category">Administra y visualiza todos los proyectos que has creado.</p>
+                        </div>
+                        <div class="card-body">
+                            <?php if (!empty($mis_proyectos)): ?>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width:5%;">ID</th>
+                                                <th>Nombre del Proyecto</th>
+                                                <th>Sector</th>
+                                                <th>Etapa</th>
+                                                <th>Estado</th>
+                                                <th>Creado</th>
+                                                <th class="text-end" style="width:18%;">Acciones</th> <!-- Un poco más de ancho para los botones -->
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla-mis-proyectos-body-profile"> <!-- ID ÚNICO para esta tabla -->
+                                            <?php foreach ($mis_proyectos as $mi_proyecto_item): ?>
+                                                <tr id="mi-proyecto-row-<?php echo $mi_proyecto_item['id_proyecto']; ?>">
+                                                    <td><?php echo $mi_proyecto_item['id_proyecto']; ?></td>
+                                                    <td><?php echo $mi_proyecto_item['nombre_proyecto']; ?></td>
+                                                    <td><?php echo $mi_proyecto_item['sector']; ?></td>
+                                                    <td><?php echo $mi_proyecto_item['etapa']; ?></td>
+                                                    <td>
+                                                        <span class="badge bg-<?php
+                                                                                $estadoLower = strtolower($mi_proyecto_item['estado']);
+                                                                                if ($estadoLower === 'aprobado' || $estadoLower === 'activo') {
+                                                                                    echo 'success';
+                                                                                } elseif ($estadoLower === 'pendiente' || $estadoLower === 'en_revision') {
+                                                                                    echo 'warning text-dark';
+                                                                                } elseif ($estadoLower === 'rechazado') {
+                                                                                    echo 'danger';
+                                                                                } else {
+                                                                                    echo 'secondary';
+                                                                                }
+                                                                                ?>">
+                                                            <?php echo ucfirst($mi_proyecto_item['estado']); ?>
+                                                        </span>
+                                                    </td>
+                                                    <td><?php echo $mi_proyecto_item['fecha_formateada']; ?></td>
+                                                    <td class="text-end">
+                                                        <button type="button" class="btn btn-icon btn-sm btn-info btn-round btn-ver-mi-proyecto"
+                                                            data-project-id="<?php echo $mi_proyecto_item['id_proyecto']; ?>"
+                                                            data-bs-toggle="tooltip" title="Ver Detalles del Proyecto">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-icon btn-sm btn-warning btn-round btn-editar-mi-proyecto"
+                                                            data-project-id="<?php echo $mi_proyecto_item['id_proyecto']; ?>"
+                                                            data-bs-toggle="tooltip" title="Editar Proyecto">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-icon btn-sm btn-danger btn-round btn-eliminar-mi-proyecto"
+                                                            data-project-id="<?php echo $mi_proyecto_item['id_proyecto']; ?>"
+                                                            data-project-name="<?php echo htmlspecialchars($mi_proyecto_item['nombre_proyecto'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-bs-toggle="tooltip" title="Eliminar Proyecto">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="alert alert-light text-center border shadow-sm">
+                                    <i class="fas fa-folder-open fa-3x text-muted mb-2"></i>
+                                    <p class="lead mb-2">Aún no has publicado ningún proyecto.</p>
+                                    <p>¡Es un buen momento para empezar a dar vida a tus ideas!</p>
+                                    <a href="#" class="btn btn-success btn-round menu-link mt-2" data-page="public-project">
+                                        <i class="fas fa-plus-circle me-1"></i> Crear mi Primer Proyecto
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; // Fin del if ($sesion_rol_usuario === 'Emprendedor') 
+        ?>
     </div>
 </div>
+
+<!-- MODALES CRUD PARA "MIS PROYECTOS" (Colocar al final del archivo profile.php, antes del script de inicializarPaginaActual) -->
+
+<!-- Modal para Ver Detalles del Proyecto -->
+<div class="modal fade" id="modalVerMiProyectoProfile" tabindex="-1" aria-labelledby="modalVerMiProyectoLabelProfile" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="modalVerMiProyectoLabelProfile">Detalles del Proyecto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalVerMiProyectoBodyProfile">
+                <p class="text-center py-5"><span class="spinner-border spinner-border-lg text-info"></span><br>Cargando detalles...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-round" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
+<!-- MODALES CRUD PARA "MIS PROYECTOS" (Van al final del archivo profile.php, antes del script de inicializarPaginaActual) -->
+
+<!-- Modal para Ver Detalles del Proyecto -->
+<div class="modal fade" id="modalVerMiProyectoProfile" tabindex="-1" aria-labelledby="modalVerMiProyectoLabelProfile" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered"> <!-- modal-xl para más espacio -->
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="modalVerMiProyectoLabelProfile">Detalles del Proyecto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalVerMiProyectoBodyProfile">
+                <div class="text-center py-5"><span class="spinner-border spinner-border-lg text-info"></span>
+                    <p class="mt-2">Cargando detalles...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-round" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Modal para Editar Proyecto -->
+<div class="modal fade" id="modalEditarMiProyectoProfile" tabindex="-1" aria-labelledby="modalEditarMiProyectoLabelProfile" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalEditarMiProyectoLabelProfile">Editar Mi Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalEditarMiProyectoBodyProfile">
+                <div class="text-center py-5"><span class="spinner-border spinner-border-lg text-warning"></span>
+                    <p class="mt-2">Cargando formulario de edición...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-round" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success btn-round" id="btnSubmitFormEditarMiProyectoProfile" form="formEditarMiProyectoModalProfile">
+                    <i class="fas fa-save me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar Proyecto -->
+<div class="modal fade" id="modalEliminarMiProyectoProfile" tabindex="-1" aria-labelledby="modalEliminarMiProyectoLabelProfile" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarMiProyectoLabelProfile">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el proyecto "<strong id="nombreMiProyectoAEliminarProfile"></strong>"?</p>
+                <p class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i>Esta acción no se puede deshacer.</p>
+                <input type="hidden" id="idMiProyectoAEliminarProfile">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-round" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger btn-round" id="btnConfirmarEliminarMiProyectoProfile">
+                    <i class="fas fa-trash-alt me-1"></i> Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <!-- MODALES subir foto de perfil-->
 <div class="modal fade" id="changeProfilePicModalemprendeya" tabindex="-1" role="dialog" aria-labelledby="changeProfilePicModalLabel" aria-hidden="true">
@@ -1000,6 +1197,232 @@ $municipios_lista = [
         }
 
 
+        const $tablaMisProyectosBody = $('#tabla-mis-proyectos-body-profile');
+
+        // Selectores para los modales CRUD de "Mis Proyectos"
+        const $modalVerMiProyecto = $('#modalVerMiProyectoProfile');
+        const $modalVerMiProyectoBody = $('#modalVerMiProyectoBodyProfile');
+        const $modalEditarMiProyecto = $('#modalEditarMiProyectoProfile');
+        const $modalEditarMiProyectoBody = $('#modalEditarMiProyectoBodyProfile');
+        const $modalEliminarMiProyecto = $('#modalEliminarMiProyectoProfile');
+        const $btnConfirmarEliminarMiProyecto = $('#btnConfirmarEliminarMiProyectoProfile');
+        const $nombreMiProyectoAEliminar = $('#nombreMiProyectoAEliminarProfile');
+        const $idMiProyectoAEliminar = $('#idMiProyectoAEliminarProfile');
+        const $btnSubmitFormEditarMiProyecto = $('#btnSubmitFormEditarMiProyectoProfile'); // Botón de submit del modal de edición
+
+        // Función de alerta (debe estar definida globalmente o localmente)
+        function showAlertGloballyJsProfile(type, title, message) {
+            if (typeof swal === 'function') {
+                swal({
+                    icon: type,
+                    title: title,
+                    text: message,
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    timer: type === 'success' ? 2500 : 4000
+                });
+            } else {
+                alert(title + ": " + message);
+            }
+        }
+
+        // --- Lógica para "Mis Proyectos" ---
+        if ($tablaMisProyectosBody.length) {
+
+            // --- VER DETALLES DEL PROYECTO ---
+            $tablaMisProyectosBody.on('click', '.btn-ver-mi-proyecto', function() {
+                const projectId = $(this).data('project-id');
+                console.log("PROFILE.PHP (Mis Proyectos): Ver detalles del proyecto ID:", projectId);
+                $modalVerMiProyectoBody.html('<div class="text-center py-5"><span class="spinner-border spinner-border-lg text-info"></span><p class="mt-2">Cargando detalles...</p></div>');
+
+                const verModalBootstrapInstance = bootstrap.Modal.getOrCreateInstance($modalVerMiProyecto[0]);
+                verModalBootstrapInstance.show();
+
+                $.ajax({
+                    url: 'backend-php/get_project_details_for_modal.php',
+                    type: 'GET',
+                    data: {
+                        id_proyecto: projectId
+                    },
+                    dataType: 'html',
+                    success: function(responseHtml) {
+                        $modalVerMiProyectoBody.html(responseHtml);
+                        // El script dentro del HTML cargado debería manejar su propio JS (ej. Magnific Popup)
+                        // Si el mapa se carga, su inicializador también debe estar en el HTML cargado o llamarse aquí.
+                    },
+                    error: function(jqXHR) {
+                        $modalVerMiProyectoBody.html(`<div class="alert alert-danger m-3">Error al cargar detalles: ${jqXHR.statusText}</div>`);
+                    }
+                });
+            });
+
+            // --- EDITAR PROYECTO ---
+            $tablaMisProyectosBody.on('click', '.btn-editar-mi-proyecto', function() {
+                const projectId = $(this).data('project-id');
+                console.log("PROFILE.PHP (Mis Proyectos): Editar proyecto ID:", projectId);
+                $modalEditarMiProyectoBody.html('<div class="text-center py-5"><span class="spinner-border spinner-border-lg text-warning"></span><p class="mt-2">Cargando formulario de edición...</p></div>');
+
+                const editarModalBootstrapInstance = bootstrap.Modal.getOrCreateInstance($modalEditarMiProyecto[0]);
+                editarModalBootstrapInstance.show();
+
+                $.ajax({
+                    url: 'backend-php/get_project_form_for_edit.php',
+                    type: 'GET',
+                    data: {
+                        id_proyecto: projectId
+                    },
+                    dataType: 'html', // Esperamos HTML
+                    success: function(formHtml) {
+                        $modalEditarMiProyectoBody.html(formHtml);
+                        // El formulario cargado debe tener id="formEditarMiProyectoModalProfile"
+                        // y su action debe apuntar a "backend-php/update_my_project.php"
+                        // Si el form cargado necesita JS (datepickers, mapa, etc.), este es un buen lugar para llamarlo
+                        // o el script dentro del formHtml puede usar $(function(){...})
+                        if (typeof window.inicializarFormularioEdicionProyecto === 'function') {
+                            window.inicializarFormularioEdicionProyecto(); // Llama a una función definida en el formHtml
+                        }
+                    },
+                    error: function() {
+                        $modalEditarMiProyectoBody.html('<div class="alert alert-danger m-3">Error al cargar el formulario de edición.</div>');
+                    }
+                });
+            });
+
+            // --- ENVIAR FORMULARIO DE EDICIÓN (delegado al modal) ---
+            // Asegurarse que el listener se adjunte una sola vez o usar namespacing
+            if (!$modalEditarMiProyecto.data('submit-handler-attached')) {
+                $modalEditarMiProyecto.on('submit', '#formEditarMiProyectoModalProfile', function(e) {
+                    e.preventDefault();
+                    const $form = $(this);
+                    const $submitButton = $modalEditarMiProyecto.find('#btnSubmitFormEditarMiProyectoProfile'); // Botón de guardar en el footer del modal
+                    const formData = new FormData(this);
+
+                    console.log("PROFILE.PHP (Mis Proyectos): Guardando edición para proyecto ID:", formData.get('id_proyecto'));
+                    $submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Guardando...');
+
+                    $.ajax({
+                        url: $form.attr('action'), // Debería ser backend-php/update_my_project.php
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                showAlertGloballyJsProfile('success', '¡Éxito!', response.message || 'Proyecto actualizado.');
+                                bootstrap.Modal.getInstance($modalEditarMiProyecto[0])?.hide();
+                                setTimeout(function() {
+                                    // Para recargar solo la tabla de proyectos sin recargar toda la página,
+                                    // necesitarías una función que haga AJAX para obtener $mis_proyectos y la renderice de nuevo.
+                                    // Por ahora, la recarga de página es más simple:
+                                    window.location.href = window.location.pathname + '?page=profile'; // Forzar recarga del contenido de perfil
+                                }, 1500);
+                            } else {
+                                showAlertGloballyJsProfile('error', 'Error', response.message || 'No se pudo actualizar.');
+                            }
+                        },
+                        error: function(jqXHR) {
+                            showAlertGloballyJsProfile('error', 'Error', 'Error de conexión al actualizar: ' + jqXHR.statusText);
+                        },
+                        complete: function() {
+                            $submitButton.prop('disabled', false).html('<i class="fas fa-save me-1"></i> Guardar Cambios');
+                        }
+                    });
+                });
+                $modalEditarMiProyecto.data('submit-handler-attached', true); // Marcar que el handler fue adjuntado
+            }
+
+
+            // --- ELIMINAR PROYECTO ---
+            $tablaMisProyectosBody.on('click', '.btn-eliminar-mi-proyecto', function() {
+                const projectId = $(this).data('project-id');
+                const projectName = $(this).data('project-name');
+
+                $nombreMiProyectoAEliminar.text(projectName || 'este proyecto');
+                $idMiProyectoAEliminar.val(projectId);
+
+                const eliminarModalInst = bootstrap.Modal.getOrCreateInstance($modalEliminarMiProyecto[0]);
+                eliminarModalInst.show();
+            });
+
+            $btnConfirmarEliminarMiProyecto.off('click').on('click', function() { // .off().on() para evitar múltiples bindings
+                const projectId = $idMiProyectoAEliminar.val();
+                const $button = $(this);
+
+                if (!projectId) {
+                    /* ... manejo de error ... */
+                    return;
+                }
+                $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Eliminando...');
+
+                $.ajax({
+                    url: 'backend-php/delete_my_project.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        id_proyecto: projectId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showAlertGloballyJsProfile('success', '¡Eliminado!', response.message || 'Proyecto eliminado.');
+                            $('#mi-proyecto-row-' + projectId).fadeOut(500, function() {
+                                $(this).remove();
+                                if ($tablaMisProyectosBody.find('tr').length === 0) {
+                                    const noProjectsHtml = '<td colspan="7"><div class="alert alert-light text-center border shadow-sm py-4"><i class="fas fa-folder-open fa-3x text-muted mb-3 d-block"></i><p class="lead mb-0">Todos tus proyectos han sido eliminados.</p><p><a href="#" class="menu-link" data-page="crear-proyecto">Crear Nuevo Proyecto</a></p></div></td>';
+                                    $tablaMisProyectosBody.html(`<tr>${noProjectsHtml}</tr>`);
+                                }
+                            });
+                        } else {
+                            showAlertGloballyJsProfile('error', 'Error', response.message || 'No se pudo eliminar.');
+                        }
+                    },
+                    error: function() {
+                        /* ... */
+                    },
+                    complete: function() {
+                        $button.prop('disabled', false).html('<i class="fas fa-trash-alt me-1"></i> Sí, Eliminar');
+                        bootstrap.Modal.getInstance($modalEliminarMiProyecto[0])?.hide();
+                    }
+                });
+            });
+        } // Fin if ($tablaMisProyectosBody.length)
+
+        // Inicializar tooltips en toda la página de perfil una vez que todo esté listo
+        var mainTooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        mainTooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Función de alerta (asegúrate que esté definida globalmente o localmente)
+        function showAlertGloballyJsProfile(type, title, message) {
+            if (typeof swal === 'function') {
+                swal({
+                    icon: type,
+                    title: title,
+                    text: message,
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    timer: type === 'success' ? 2000 : 4000
+                });
+            } else {
+                alert(title + ": " + message);
+            }
+        }
+
         // Limpiar modales al cerrar
         // Es mejor usar un selector más específico si sabes que solo los modales de esta página deben limpiarse así.
         // O si es global, debería estar en index.php
@@ -1020,13 +1443,229 @@ $municipios_lista = [
         console.log("PROFILE.PHP: Fin de inicializarPaginaActual(). Todos los handlers adjuntados.");
     }
 
-    // No envuelvas inicializarPaginaActual en $(document).ready() aquí.
-    // El script de carga de index.php ya se encarga de llamar esta función
-    // cuando el DOM de profile.php está listo.
+    // =======================================================================
+    // --- FUNCIÓN INDEPENDIENTE PARA "MIS PROYECTOS" CRUD ---
+    // =======================================================================
+    function inicializarMisProyectosCRUD() {
+        console.log("PROFILE.PHP (Mis Proyectos): inicializarMisProyectosCRUD() ejecutada.");
+
+        // --- Selectores para la tabla y modales de "Mis Proyectos" ---
+        const $tablaMisProyectosBody = $('#tabla-mis-proyectos-body-profile');
+
+        const $modalVerMiProyecto = $('#modalVerMiProyectoProfile');
+        const $modalVerMiProyectoBody = $('#modalVerMiProyectoBodyProfile');
+        const $modalEditarMiProyecto = $('#modalEditarMiProyectoProfile');
+        const $modalEditarMiProyectoBody = $('#modalEditarMiProyectoBodyProfile');
+        const $btnSubmitFormEditarMiProyecto = $('#btnSubmitFormEditarMiProyectoProfile'); // Botón en el footer del modal de edición
+
+        const $modalEliminarMiProyecto = $('#modalEliminarMiProyectoProfile');
+        const $btnConfirmarEliminarMiProyecto = $('#btnConfirmarEliminarMiProyectoProfile');
+        const $nombreMiProyectoAEliminar = $('#nombreMiProyectoAEliminarProfile');
+        const $idMiProyectoAEliminar = $('#idMiProyectoAEliminarProfile');
+
+        // Función de alerta (puedes moverla a un scope más global si se usa en otras partes)
+        function showAlertForMyProjects(type, title, message) {
+            if (typeof swal === 'function') {
+                swal({
+                    icon: type,
+                    title: title,
+                    text: message,
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    timer: type === 'success' ? 2500 : 4000
+                });
+            } else {
+                console.warn("SweetAlert (swal) no está definido. Usando alert() por defecto.");
+                alert(title + ": " + message);
+            }
+        }
+
+        // --- Lógica para "Mis Proyectos" ---
+        if ($tablaMisProyectosBody.length) {
+
+            // --- VER DETALLES DEL PROYECTO ---
+            $tablaMisProyectosBody.off('click.verProyectoCrud').on('click.verProyectoCrud', '.btn-ver-mi-proyecto', function() {
+                const projectId = $(this).data('project-id');
+                console.log("CRUD Mis Proyectos: Ver detalles ID:", projectId);
+                $modalVerMiProyectoBody.html('<div class="text-center py-5"><span class="spinner-border spinner-border-lg text-info"></span><p class="mt-2">Cargando detalles...</p></div>');
+
+                const verModalBootstrapInstance = bootstrap.Modal.getOrCreateInstance($modalVerMiProyecto[0]);
+                verModalBootstrapInstance.show();
+
+                $.ajax({
+                    url: 'backend-php/get_project_details_for_modal.php',
+                    type: 'GET',
+                    data: {
+                        id_proyecto: projectId
+                    },
+                    dataType: 'html',
+                    success: function(responseHtml) {
+                        $modalVerMiProyectoBody.html(responseHtml);
+                        // El script dentro de responseHtml se ejecutará (ej. para Magnific Popup del modal)
+                    },
+                    error: function(jqXHR) {
+                        $modalVerMiProyectoBody.html(`<div class="alert alert-danger m-3">Error al cargar detalles: ${jqXHR.statusText || 'Error desconocido'}.</div>`);
+                    }
+                });
+            });
+
+            // --- EDITAR PROYECTO (Abrir Modal con Formulario) ---
+            $tablaMisProyectosBody.off('click.editarProyectoCrud').on('click.editarProyectoCrud', '.btn-editar-mi-proyecto', function() {
+                const projectId = $(this).data('project-id');
+                console.log("CRUD Mis Proyectos: Abrir modal Editar ID:", projectId);
+                $modalEditarMiProyectoBody.html('<div class="text-center py-5"><span class="spinner-border spinner-border-lg text-warning"></span><p class="mt-2">Cargando formulario...</p></div>');
+
+                const editarModalBootstrapInstance = bootstrap.Modal.getOrCreateInstance($modalEditarMiProyecto[0]);
+                editarModalBootstrapInstance.show();
+
+                $.ajax({
+                    url: 'backend-php/get_project_form_for_edit.php',
+                    type: 'GET',
+                    data: {
+                        id_proyecto: projectId
+                    },
+                    dataType: 'html',
+                    success: function(formHtml) {
+                        $modalEditarMiProyectoBody.html(formHtml);
+                        // El form cargado debe tener id="formEditarMiProyectoModalProfile"
+                        // y action="backend-php/update_my_project.php"
+                        console.log("CRUD Mis Proyectos: Formulario de edición cargado.");
+                        // Si el formHtml tiene <script> tags, la función ejecutarScriptsEn de index.php los manejaría.
+                        // Si hay JS que necesitas ejecutar específicamente DESPUÉS de cargar este form, puedes hacerlo aquí.
+                    },
+                    error: function() {
+                        $modalEditarMiProyectoBody.html('<div class="alert alert-danger m-3">Error al cargar el formulario de edición.</div>');
+                    }
+                });
+            });
+
+            // --- ENVIAR FORMULARIO DE EDICIÓN (Listener delegado al cuerpo del modal) ---
+            // Este es el listener crucial para el botón "Guardar Cambios" del modal de edición.
+            // Se adjunta al modal (que es estático) y escucha el evento submit del formulario cargado dinámicamente.
+            if ($modalEditarMiProyecto.length) {
+                $modalEditarMiProyecto.off('submit.guardarEdicionCrud').on('submit.guardarEdicionCrud', '#formEditarMiProyectoModalProfile', function(e) {
+                    e.preventDefault(); // Prevenir el envío HTML normal
+                    const $form = $(this); // El formulario que disparó el evento submit
+                    const $submitButton = $btnSubmitFormEditarMiProyecto; // El botón en el footer del modal
+                    const formData = new FormData(this);
+
+                    console.log("CRUD Mis Proyectos: SUBMIT capturado para #formEditarMiProyectoModalProfile. Proyecto ID:", formData.get('id_proyecto'));
+                    $submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Guardando...');
+
+                    $.ajax({
+                        url: $form.attr('action'), // Debería ser backend-php/update_my_project.php
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log("CRUD Mis Proyectos: Respuesta de update_my_project.php:", response);
+                            if (response.success) {
+                                showAlertForMyProjects('success', '¡Éxito!', response.message || 'Proyecto actualizado correctamente.');
+                                bootstrap.Modal.getInstance($modalEditarMiProyecto[0])?.hide();
+                                setTimeout(function() {
+                                    // Para recargar y ver cambios en la pestaña "Mis Proyectos"
+                                    // Asegúrate que tu index.php pueda activar esta pestaña con el parámetro 'tab'
+                                    window.location.href = window.location.pathname + window.location.search.replace(/&?tab=[^&]*/, '') + (window.location.search ? '&' : '?') + 'tab=my-projects';
+                                    // Si lo anterior es muy complejo, un simple reload funciona:
+                                    // location.reload(); 
+                                }, 1500);
+                            } else {
+                                showAlertForMyProjects('error', 'Error de Actualización', response.message || 'No se pudo actualizar el proyecto. Revise los campos e intente de nuevo.');
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            showAlertForMyProjects('error', 'Error de Conexión', 'Error al intentar actualizar el proyecto: ' + (jqXHR.responseJSON?.message || textStatus || 'Error desconocido.'));
+                            console.error("CRUD Mis Proyectos - Update Error AJAX:", textStatus, errorThrown, jqXHR.responseText);
+                        },
+                        complete: function() {
+                            $submitButton.prop('disabled', false).html('<i class="fas fa-save me-1"></i> Guardar Cambios');
+                        }
+                    });
+                });
+            }
+
+
+            // --- ELIMINAR PROYECTO ---
+            $tablaMisProyectosBody.off('click.eliminarProyectoCrud').on('click.eliminarProyectoCrud', '.btn-eliminar-mi-proyecto', function() {
+                const projectId = $(this).data('project-id');
+                const projectName = $(this).data('project-name');
+
+                $nombreMiProyectoAEliminar.text(projectName || 'este proyecto');
+                $idMiProyectoAEliminar.val(projectId);
+
+                const eliminarModalInst = bootstrap.Modal.getOrCreateInstance($modalEliminarMiProyecto[0]);
+                eliminarModalInst.show();
+            });
+
+            $btnConfirmarEliminarMiProyecto.off('click.confirmarEliminarCrud').on('click.confirmarEliminarCrud', function() {
+                const projectId = $idMiProyectoAEliminar.val();
+                const $button = $(this);
+
+                if (!projectId) {
+                    showAlertForMyProjects('error', 'Error', 'ID de proyecto no encontrado para eliminar.');
+                    return;
+                }
+                $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Eliminando...');
+
+                $.ajax({
+                    url: 'backend-php/delete_my_project.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        id_proyecto: projectId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showAlertForMyProjects('success', '¡Eliminado!', response.message || 'Proyecto eliminado.');
+                            $('#mi-proyecto-row-' + projectId).fadeOut(500, function() {
+                                $(this).remove();
+                                if ($tablaMisProyectosBody.find('tr').length === 0) {
+                                    const noProjectsHtml = '<tr><td colspan="7"><div class="alert alert-light text-center border shadow-sm py-4"><i class="fas fa-folder-open fa-3x text-muted mb-3 d-block"></i><p class="lead mb-0">Todos tus proyectos han sido eliminados.</p><p><a href="#" class="menu-link" data-page="crear-proyecto">Crear Nuevo Proyecto</a></p></div></td></tr>';
+                                    $tablaMisProyectosBody.html(noProjectsHtml);
+                                }
+                            });
+                        } else {
+                            showAlertForMyProjects('error', 'Error de Eliminación', response.message || 'No se pudo eliminar el proyecto.');
+                        }
+                    },
+                    error: function(jqXHR) {
+                        showAlertForMyProjects('error', 'Error', 'Error de conexión al eliminar: ' + (jqXHR.responseJSON?.message || jqXHR.statusText));
+                    },
+                    complete: function() {
+                        $button.prop('disabled', false).html('<i class="fas fa-trash-alt me-1"></i> Sí, Eliminar');
+                        bootstrap.Modal.getInstance($modalEliminarMiProyecto[0])?.hide();
+                    }
+                });
+            });
+        } // Fin if ($tablaMisProyectosBody.length)
+
+        // Inicializar tooltips globales de la página de perfil (si no se hace ya en otro lado)
+        if (typeof bootstrap !== 'undefined' && typeof bootstrap.Tooltip === 'function') {
+            var mainTooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            mainTooltipTriggerList.map(function(tooltipTriggerEl) {
+                // Evitar reinicializar si ya tiene una instancia
+                if (!bootstrap.Tooltip.getInstance(tooltipTriggerEl)) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                }
+                return bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+            });
+        }
+
+        console.log("PROFILE.PHP (Mis Proyectos): Fin de la inicialización de la sección 'Mis Proyectos'.");
+    } // Fin de inicializarMisProyectosCRUD
+
+    // --- FIN FUNCIÓN INDEPENDIENTE PARA "MIS PROYECTOS" CRUD ---
 </script>
-<!-- ======================================================================= -->
-<!-- ============= FIN DEL CÓDIGO JAVASCRIPT PERSONALIZADO =============== -->
-<!-- ======================================================================= -->
+
 
 </body>
 

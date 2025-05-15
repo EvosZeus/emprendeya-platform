@@ -166,7 +166,7 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
                   data-bs-title="Settings"><i class="fa fa-cog"></i></a>
               </div>
               <div class="col-4">
-                <a href="#" class="menubar p-3 menu-link" data-page="email/email-inbox" data-bs-toggle="tooltip"
+                <a href="#" class="menubar p-3 menu-link" data-page="email-inbox" data-bs-toggle="tooltip"
                   data-bs-placement="top" data-bs-title="Email">
                   <i class="fa fa-envelope"></i>
                 </a>
@@ -358,7 +358,7 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
               </a>
             </li>
             <li class="nav-item">
-              <a href="" class="menu-link" data-page="about">
+              <a href="" class="menu-link" data-page="aliados">
                 <i class="fas fa-hands-helping"></i>
                 <p>Aliados</p>
                 <span class="badge badge-success"></span>
@@ -450,7 +450,7 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
                   <li>
                     <div class="message-notif-scroll scrollbar-outer">
                       <div class="notif-center">
-                        <a href="#" class="menu-link" data-page="email/chat">
+                        <a href="#" class="menu-link" data-page="chat">
                           <div class="notif-img">
                             <img src="assets/img/profile2.jpg" alt="Img Profile" />
                           </div>
@@ -573,7 +573,7 @@ $sesion_cuenta_verificada = isset($_SESSION['user_account_verified'])
                             <span class="text">Informes</span>
                           </div>
                         </a>
-                        <a class="col-6 col-md-4 p-0 menu-link" href="#" data-page="email/email-inbox">
+                        <a class="col-6 col-md-4 p-0 menu-link" href="#" data-page="email-inbox">
                           <div class="quick-actions-item">
                             <div class="avatar-item bg-success rounded-circle">
                               <i class="fas fa-envelope"></i>
